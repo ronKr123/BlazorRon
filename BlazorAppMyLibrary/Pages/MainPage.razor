@@ -1,0 +1,56 @@
+﻿@page "/library"
+
+<div class="library-home">
+    <h1>Welcome to Our Library</h1>
+
+    <div class="buttons-container">
+        <button class="login-btn" @onclick="NavigateToLogin">Login</button>
+        <button class="register-btn" @onclick="NavigateToRegister">Register</button>
+    </div>
+</div>
+
+<style>
+    .library-home {
+        text-align: center;
+        padding: 50px;
+    }
+
+    h1 {
+        font-size: 2.5em;
+        color: #333;
+    }
+
+    .buttons-container {
+        margin-top: 30px;
+    }
+
+    .login-btn,
+    .register-btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 30px;
+        font-size: 1.2em;
+        margin: 0 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .login-btn:hover,
+    .register-btn:hover {
+        background-color: #45a049;
+    }
+</style>
+
+@code {
+    private void NavigateToLogin()
+    {
+        // Add navigation logic to the login page
+    }
+
+    private void NavigateToRegister()
+    {
+        // Add navigation logic to the register page
+    }
+}

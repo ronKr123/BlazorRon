@@ -1,0 +1,298 @@
+﻿@page "/userlendings"
+@inject ApiService api
+@inject UserService userService
+@layout NewLayoutUser
+@inject IJSRuntime JSRuntime
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+
+<style>
+
+
+    body{
+        background-color:lightblue !important;
+    }
+
+    .page-title {
+        color: #333;
+        text-align: center;
+        margin-bottom: 50px;
+        margin-top: 20px;
+        font-size:40px;
+    }
+
+    .filter-section {
+        display: flex;
+        margin-bottom: 20px;
+        justify-content: center; /* Center items horizontally */
+     
+    }
+
+    .lendings-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .lending-item {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin-left:20px;
+        margin-bottom:20px;
+    }
+
+    .book-image {
+        border-radius: 4px;
+        max-width: 100%;
+        max-height: 200px; /* Adjust the maximum height of the book image */
+        height: auto;
+        margin: 0 auto;
+        display: block; /* Ensure the image is treated as a block element */
+    }
+
+    .lending-item:hover {
+        transform: translateY(-5px); /* Move the card up slightly on hover */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect on hover */
+    }
+
+    .not-returned {
+        font-weight: bold;
+        color: #ff6666; /* Light red color */
+    }
+
+    .book-image-container {
+        display: flex;
+        justify-content: center; /* Center items horizontally */
+        margin-bottom: 10px;
+    }
+    .lending-details {
+        font-size:25px;
+        text-align:center;
+        margin-top: 10px;
+    }
+
+    .date-details span {
+        display: block;
+        margin-top:5px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Error: Please fix the date range and try again.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<ErrorModal />
+
+
+<h3 class="page-title display-4">ההשאלות שלי</h3>
+
+
+
+
+<div class="filter-section" style="margin-right:30px;">
+
+    <button class="btn btn-primary" @onclick="FilterLendings">סינון</button>
+
+    <input type="date" id="endDate" @bind="endDate" style="margin:10px;" />
+    <label for="endDate" style="margin:10px;">: תאריך החזרה</label>
+
+    <input type="date" id="startDate" @bind="startDate" style="margin:10px;" />
+    <label for="startDate" style="margin:10px;">: תאריך השאלה</label>
+
+</div>
+
+@if (lendingUser.Any())
+{
+    <div class="lendings-container">
+        @foreach (var lending in lendingUser)
+        {
+            <div class="lending-item">
+                <img src="@($"data:image/{GetImageType(lending.BookCode.BookPic, lending.BookCode)};base64,{lending.BookCode.BookPic}")" alt="Book Image" class="book-image" />
+                <div class="lending-details">
+                    @if (isDigitalBook)
+                    {
+                        <strong>@lending.BookCode.BookName <span>(ספר דיגיטלי)</span></strong>
+                    }
+                    else
+                    {
+                        <strong>@lending.BookCode.BookName</strong>
+                    }
+
+                    <div class="date-details">
+                        <span>תאריך השאלה: @lending.DateOfLending.ToShortDateString()</span>
+                        <span>תאריך החזרה: @(lending.DateOfReturn == DateTime.MinValue || lending.DateOfReturn.Date == new DateTime(2001, 1, 1) ? "עדיין לא הוחזר" : lending.DateOfReturn.ToShortDateString())</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center display-3">לא הושאלו עדיין ספרים</div>
+    <div class="text-center display-2">על מנת להשאיל ספרים פנה למנהל</div>
+}
+
+<script>
+    function showErrorModal() {
+        $('#errorModal').modal('show');
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+@code {
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private LendingAndReturnsBooksList lendings; 
+    private LendingAndReturnsBooksList filteredLendings;
+    private LendingAndReturnsBooksList lendingUser = new LendingAndReturnsBooksList();
+
+    private DigitalBooksList digitalBooks;
+
+    private LendingAndReturnsBooksList GetLendingUser{ get; set; }
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        startDate = DateTime.Now.Date;
+        endDate = DateTime.Now.Date;
+
+        lendings = await api.SelectAllLendingAndReturnsBooks();
+        foreach(LendingAndReturnsBooks lend in lendings)
+        {
+            if(lend.UserCode.Id == userService.CurrentUser.Id)
+            {
+                lendingUser.Add(lend);
+            }
+        }
+        GetLendingUser = lendingUser;
+
+        digitalBooks = await api.SelectAllDigitalBooks();
+        books = await api.SelectAllBooks();
+    }
+
+    private BooksList books;
+
+    private string GetImageType(string base64String, Books bookItem)
+    {
+        // foreach(DigitalBooks digi in digitalBooks)
+        // {
+        //     if()
+        // }
+
+        if(digitalBooks.Contains(bookItem))
+        {
+            isDigitalBook = true;
+        }
+        else
+        {
+            isDigitalBook = false;
+        }
+
+
+        // Determine image type based on the base64 string
+        if (base64String.StartsWith("/9j/")) // JPG signature
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        {
+            return "png";
+        }
+        else
+        {
+            // Add more image type checks as needed
+            return "png"; // Default to PNG if not recognized
+        }
+    }
+
+    private DigitalBooksList GetDigitalBooks{ get; set; }
+
+    private async Task<bool> IsDigitalBook(Books book)
+    {
+        return await Task.Run(() =>
+    {
+        return digitalBooks.Any(digitalBook => digitalBook.Id == book.Id);
+    });
+    }
+
+    private async Task<bool> CheckMethod(Books book)
+    {
+        return await IsDigitalBook(book);
+    }
+
+    private bool isDigitalBook = false;
+
+
+    private async Task CheckIsDigitalBook(Books book)
+    {
+        isDigitalBook = await IsDigitalBook(book);
+    }
+
+    private void FilterLendings()
+    {
+        if (startDate.HasValue && endDate.HasValue && startDate <= endDate)
+        {
+            // Filter lendings within the selected date range
+            filteredLendings = new LendingAndReturnsBooksList();
+
+            foreach (LendingAndReturnsBooks lend in lendingUser)
+            {
+                // Check if the lending date is within the selected range
+                if (lend.DateOfLending >= startDate && lend.DateOfLending <= endDate)
+                {
+                    // If the lending has been returned, check if the return date is within the selected range
+                    if (lend.DateOfReturn != DateTime.MinValue && lend.DateOfReturn != new DateTime(2001, 1, 1))
+                    {
+                        if (lend.DateOfReturn >= startDate && lend.DateOfReturn <= endDate)
+                        {
+                            filteredLendings.Add(lend);
+                        }
+                    }
+                    // If the lending hasn't been returned yet, include it regardless of the return date
+                    else
+                    {
+                        filteredLendings.Add(lend);
+                    }
+                }
+            }
+
+            lendingUser = filteredLendings;
+        }
+        else
+        {
+            // Show error modal if the date range is invalid or not selected
+            // Activate the modal using JavaScript
+            ShowErrorModal();
+        }
+    }
+
+    // Function to execute JavaScript code
+    private async Task ShowErrorModal()
+    {
+        await JSRuntime.InvokeVoidAsync("$('#errorModal').modal('show');");
+    }
+
+}
+

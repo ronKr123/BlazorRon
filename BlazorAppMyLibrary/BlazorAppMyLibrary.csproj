@@ -1,0 +1,92 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\MangerBooksListPage.razor" />
+    <Content Remove="Pages\NavBarForUsers.razor" />
+    <Content Remove="wwwroot\Images\book icon.jpg" />
+    <Content Remove="wwwroot\Images\img.jpg" />
+    <Content Remove="wwwroot\Images\img3.jpg" />
+    <Content Remove="wwwroot\Images\libraryImg2.jpg" />
+    <Content Remove="wwwroot\Images\libraryRoom.jpg" />
+    <Content Remove="wwwroot\Images\LoginBackgroundImg.png" />
+    <Content Remove="wwwroot\Images\LogoBooks.png" />
+    <Content Remove="wwwroot\Images\LogoMusic.jpg" />
+    <Content Remove="wwwroot\Images\LogoStar.png" />
+    <Content Remove="wwwroot\Images\music icon.png" />
+    <Content Remove="wwwroot\Images\MyLibraryProjectRonLogo.png" />
+    <Content Remove="wwwroot\Images\starPic.jpg" />
+    <Content Remove="wwwroot\Images\TabsPicturesAnimals\dragon-cat-removebg-preview.png" />
+    <Content Remove="wwwroot\Images\TabsPicturesAnimals\fox-cat-removebg-preview.png" />
+    <Content Remove="wwwroot\Images\TabsPicturesAnimals\panda-cat-removebg-preview.png" />
+    <Content Remove="wwwroot\Images\TabsPicturesAnimals\penguin-cat-removebg-preview.png" />
+    <Content Remove="wwwroot\Images\TabsPicturesAnimals\squirl-cat-removebg-preview.png" />
+    <Content Remove="wwwroot\Images\עיצוב ללא שם %281%29.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Pages\ydmglajs.2ou~" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\UserLendingsPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\MangerBooksListPage.razor" />
+    <_ContentIncludedByDefault Remove="Pages\NavBarForUsers.razor" />
+    <_ContentIncludedByDefault Remove="Pages\UserLendingsPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ApiLibraryService">
+      <HintPath>..\..\..\..\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\ApiLibraryService.dll</HintPath>
+    </Reference>
+    <Reference Include="Model">
+      <HintPath>..\..\..\..\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\Model.dll</HintPath>
+    </Reference>
+    <Reference Include="ViewModel">
+      <HintPath>..\..\..\..\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\ViewModel.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\Images\book icon.jpg" />
+    <Resource Include="wwwroot\Images\img.jpg" />
+    <Resource Include="wwwroot\Images\img3.jpg" />
+    <Resource Include="wwwroot\Images\libraryImg2.jpg" />
+    <Resource Include="wwwroot\Images\libraryRoom.jpg" />
+    <Resource Include="wwwroot\Images\LoginBackgroundImg.png" />
+    <Resource Include="wwwroot\Images\LogoBooks.png" />
+    <Resource Include="wwwroot\Images\LogoMusic.jpg" />
+    <Resource Include="wwwroot\Images\LogoStar.png" />
+    <Resource Include="wwwroot\Images\music icon.png" />
+    <Resource Include="wwwroot\Images\MyLibraryProjectRonLogo.png" />
+    <Resource Include="wwwroot\Images\starPic.jpg" />
+    <Resource Include="wwwroot\Images\TabsPicturesAnimals\dragon-cat-removebg-preview.png" />
+    <Resource Include="wwwroot\Images\TabsPicturesAnimals\fox-cat-removebg-preview.png" />
+    <Resource Include="wwwroot\Images\TabsPicturesAnimals\panda-cat-removebg-preview.png" />
+    <Resource Include="wwwroot\Images\TabsPicturesAnimals\penguin-cat-removebg-preview.png" />
+    <Resource Include="wwwroot\Images\TabsPicturesAnimals\squirl-cat-removebg-preview.png" />
+    <Resource Include="wwwroot\Images\עיצוב ללא שם (1).png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\MangerBooksListPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\MangerBooksListPage.razor" />
+    <None Include="Pages\NavBarForUsers.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\NavBarForUsers.razor" />
+  </ItemGroup>
+
+</Project>

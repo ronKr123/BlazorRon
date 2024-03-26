@@ -1,0 +1,122 @@
+﻿@page "/DigitalBooksPage"
+@inject ApiService api
+@inject UserService userService
+@inject NavigationManager nav
+@inject MangerService mangerService
+@layout NewLayoutUser
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<h3 class="display-4 text-center">הספרים הדיגיטליים</h3>
+
+@if (MyBooks != null)
+{
+    <div class="row">
+        @foreach (DigitalBooks book in MyBooks)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3 custom-card">
+                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי">
+                    <hr />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@book.BookName</h5>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-primary" @onclick="(() => ToMusicPlayerPage(book.Id))">לחץ להאזנה</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>הספרים נטענים, נא להמתין</p>
+}
+
+<style>
+    body{
+        background-color:lightblue;
+    }
+
+    .custom-card {
+        margin-left: 10px;
+        max-width: 200px;
+    }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+@code {
+    public DigitalBooksList MyBooks { get; set; }
+
+    [Inject]
+    private ApiLibraryService.ApiService ApiService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadUserBooks();
+    }
+
+    private async Task LoadUserBooks()
+    {
+        LendingAndReturnsBooksList lendings = await api.SelectAllLendingAndReturnsBooks();
+
+        MyBooks = await api.SelectAllDigitalBooks();
+
+        // foreach (LendingAndReturnsBooks lend in lendings)
+        // {
+        //     if (lend.UserCode.Id == userService.CurrentUser.Id && lend.DateOfReturn == new DateTime(2001, 1, 1) && IfBookInList(lend.BookCode))
+        //     {
+        //         MyBooks.Add(lend.BookCode as DigitalBooks);
+        //     }
+        // }
+    }
+
+    private bool IfBookInList(Books book)
+    {
+        return MyBooks.Any(digitalBook => digitalBook.Id == book.Id);
+    }
+
+    private string GetImageType(string base64String)
+    {
+        if (base64String.StartsWith("/9j/"))
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA"))
+        {
+            return "png";
+        }
+        else
+        {
+            return "png";
+        }
+    }
+
+    public void NavigateToDetails(int bookId)
+    {
+        nav.NavigateTo($"/musicPlayer/{bookId}", true);
+    }
+
+    public void ToMusicPlayerPage(int bookId)
+    {
+        nav.NavigateTo($"/musicPlayer/{bookId}", true);
+    }
+
+}
+

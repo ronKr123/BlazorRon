@@ -1,0 +1,129 @@
+﻿@inherits LayoutComponentBase
+@inject MangerService mangerService
+@inject NavigationManager nav
+
+@* the fix *@
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+
+
+    .tilteBar {
+        text-align: center;
+        align-items: center !important;
+        align-self: center !important
+    }
+
+    
+</style>
+<div class="container-fluid">
+    <div class="row">
+        
+        <div class="col-lg-2 col-md-4 col-sm-6 d-flex flex-column p-0 text-bg-dark" style="height: 100vh;">
+            <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark">
+                <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                    <span class="fs-4 text-center">My Library</span>
+                </a>
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="dashBoradPage" class="nav-link text-white">
+                            <i class="bi bi-speedometer2"></i>
+                              מצב כללי  
+                        </a>
+                    </li>
+                    <li>
+                        <a href="LendingsUsers" class="nav-link text-white">
+                            <i class="bi bi-book"></i>
+                            השאלות
+                        </a>
+                    </li>
+                    <li>
+                        <a href="BooksListPage" class="nav-link text-white">
+                            <i class="bi bi-bookshelf"></i>
+                            ספרים
+                        </a>
+                    </li>
+                    <li>
+                        <a href="DigitalBooksPageManger" class="nav-link text-white">
+                            <i class="bi bi-music-note-beamed"></i>
+                            ספרים דיגיטליים
+                        </a>
+                    </li>
+                    <li>
+                        <a href="UsersDetailsMangerPage" class="nav-link text-white">
+                            <i class="bi bi-people"></i>
+                            משתמשים
+                        </a>
+                    </li>
+                    <li>
+                        <a href="WritersListPage" class="nav-link text-white">
+                            <i class="bi bi-person-vcard"></i>
+                            סופרים
+                        </a>
+                    </li>
+                    <li>
+                        <a href="AddReturnBook" class="nav-link text-white">
+                            <i class="bi bi-brush"></i>
+                            קטגוריות נוספות
+                        </a>
+                    </li>
+                    <li>
+                        <a href="MangersListPage" class="nav-link text-white">
+                            <i class="bi bi-key"></i>
+                            מנהלים
+                        </a>
+                    </li>
+                </ul>
+                <hr>
+                @if (mangerService.CurrentManger != null)
+                {
+                    <!-- Avatar and user info dropdown -->
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- Adjust the size of the avatar image -->
+                            <img src="AvatarsFolder/penguinAvatar (1).jpg" alt="Avatar" class="avatar-img rounded-circle border border-dark" style="width: 60px; height: 60px;">
+                            <span class="user-info">היי, @mangerService.CurrentManger.FirstName המנהל </span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" @onclick="UpdateUser">עדכון פרטי מנהל</a></li>
+                            <li><a class="dropdown-item" @onclick="Logout">התנתקות</a></li>
+                        </ul>
+                    </div>
+
+                    
+                }
+
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="col-lg-9 col-md-8 col-sm-6 content">
+            @Body
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+@code {
+    private async void Logout()
+    {
+        if (mangerService.CurrentManger != null)
+        {
+            // await JSRuntime.InvokeVoidAsync("preventBack");
+            mangerService.CurrentManger = null;
+            nav.NavigateTo("/", true);
+        }
+    }
+
+    private void UpdateUser()
+    {
+        if (mangerService.CurrentManger != null)
+        {
+        }
+    }
+}

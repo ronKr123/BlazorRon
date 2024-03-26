@@ -1,0 +1,38 @@
+﻿@page "/genresListPage"
+@inject ApiService api
+
+<h3>GenresListPage</h3>
+@if(genres != null)
+{
+    <table class="table table-striped table-bordered table-hover" style="direction:rtl;text-align:center;">
+        <thead>
+            <tr>
+                <th>שם הז'אנר</th>
+                <th>כמות ספרים בז'אנר זה</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Genre g in genres)
+            {
+                <tr>
+                    <td>@g.GenreName</td>
+                    <td>@g.Id</td>
+                    <td>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private GenreList genres;
+
+    protected override async Task OnInitializedAsync()
+    {
+        genres = await api.SelectAllGeneres();
+    }
+
+
+}

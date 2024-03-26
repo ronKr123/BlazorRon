@@ -1,0 +1,85 @@
+﻿@page "/details"
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+
+<h3>DetailsOnWebsitePage</h3>
+
+<div class="accordion accordion-flush" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        מה אפשר לעשות באתר?
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+          באתר תוכלו למצוא המון ספרים שונים ולבחור את הספרים האהובים עליכם. תוכלו להוסיף ספרים לרשימת הספרים המועדפים שלכם וגם להזין לספרים דיגטליים.
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+        איך אני מוסיף ספר לרשימת הספרים המועדפים שלי?
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+          ליד כל ספר יש כפתור הוספה למועדפים, לחיצה עליו תוסיף את הספר שבחרתם לרשימת הספרים המועדפים שלכם. בלשונית הספרים המועדפים שלי תוכלו לראות את כל הספרים המועדפים שלכם , וגם למחוק ספרים מהרשימה אם תרצו.
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+        אני מחפש ספר מסויים, איך אני יכול למצוא אותו?
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+          בלשונית חיפוש ספר, תוכלו לחפש את הספר המסויים שאתם מחפשים.
+      </div>
+    </div>
+  </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                איך אפשר לעדכן את הפרטים האישיים שלי?
+            </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                לחצו על הכרטיס האישי שלכם וייפתח לכם אפשרות לעדכון פרטים, לחצו על הכפתור על מנת לעדכן את הפרטים שלכם במסך שיופיע.
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                איך אני משאיל ספר?
+            </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                רק המנהל יכול להשאיל ספרים למשתמשים, אנא פנו למנהל על מנת להשאיל ספר עבורכם.
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                השאלתי ספר דיגיטילי, איך אני יכול להאזין לו?
+            </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                בלשונית הספרים הדיגיטליים שלי, יופיעו כל הספרים הדיגיטליים הזמינים עבורכם, בחרו את הספר הדיגיטלי שתרצו והאזינו לו.
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

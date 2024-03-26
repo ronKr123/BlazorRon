@@ -1,0 +1,312 @@
+﻿@page "/UpdateUser/{userId:int}"
+@page "/UpdateUserPagee"
+@layout NewLayoutUser
+@inject NavigationManager nav
+@inject UserService userService
+@inject IJSRuntime jsRuntime
+@inject ApiService api
+
+@using System.Diagnostics;
+@using System.ComponentModel.DataAnnotations;
+@using System.Text.RegularExpressions;
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    window.bootstrapjsinterop = {
+        showModal: (modalSelector) => {
+            $(modalSelector).modal('show');
+        },
+
+        disposeModal: (modalSelector) => {
+            $(modalSelector).on('hidden.bs.modal', function (e) {
+                $(this).data('bs.modal', null);
+            });
+        },
+
+        disableBackButton: () => {
+            window.history.pushState(null, document.title, window.location.href);
+            window.addEventListener('popstate', function (event) {
+                window.history.pushState(null, document.title, window.location.href);
+            });
+        }
+    };
+</script>
+
+<style>
+    body {
+        background-color: lightblue;
+    }
+
+    .spacer {
+        margin-bottom: 30px;
+    }
+
+    .spaceUnder {
+        margin-bottom: 130px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    select {
+        text-align: right;
+        width: 100%;
+    }
+
+    label {
+        text-align: right;
+    }
+</style>
+
+<div class="spacer"></div>
+
+@if (UserUpdatedParameter != null)
+{
+    <div class="row g-3">
+        <div class="col-md-6 text-end">
+            <label for="validationTooltip01" class="form-label">שם משפחה</label>
+            <input type="text" class="form-control" id="validationTooltip01" placeholder="הזן שם משפחה" @bind="UserUpdatedParameter.LastName" disabled />
+        </div>
+        <div class="col-md-6 text-end">
+            <label for="validationTooltip02" class="form-label">שם פרטי:</label>
+            <input type="text" class="form-control" id="validationTooltip02" placeholder="הזן שם פרטי" @bind="UserUpdatedParameter.FirstName" disabled />
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="row g-3">
+        <div class="col-md-6 text-end">
+            <label for="dateOfBirth" class="form-label">תאריך לידה:</label>
+            <input type="date" class="form-control" id="dateOfBirth" @bind="UserUpdatedParameter.DateOfBirth" required />
+        </div>
+        <div class="col-md-6 text-end">
+            <label for="validationTooltipCity" class="form-label">עיר מגורים:</label>
+            @if (GetCities != null)
+            {
+                <select class="form-select" id="citySelected" @bind="UserUpdatedParameter.CityCode.CityName" required>
+                    <option value="">בחר עיר...</option>
+                    @foreach (var city in GetCities)
+                    {
+                        <option value="@city.CityName">@city.CityName</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <div>
+                    Cities data is not available.
+                </div>
+            }
+            <div class="invalid-tooltip">
+                Please select a valid city.
+            </div>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="row g-3">
+        <div class="col-md-6 text-end">
+            <label for="validationTooltipUsername" class="form-label">שם משתמש:</label>
+            <div class="input-group has-validation">
+                <input type="text" class="form-control" id="validationTooltipUsername" aria-describedby="validationTooltipUsernamePrepend" @bind="UserUpdatedParameter.UserName" disabled />
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <label for="validationTooltipPassword" class="form-label">סיסמה:</label>
+            <input type="password" class="form-control" id="validationTooltipPassword" @bind="UserUpdatedParameter.UserPassword" required />
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="row g-3">
+        <div class="col-md-6 text-end">
+            <label for="validationTooltip04" class="form-label">אימייל:</label>
+            <input type="email" class="form-control" id="validationTooltip04" placeholder="הזן כתובת אימייל" @bind="UserUpdatedParameter.Email" required />
+        </div>
+        <div class="col-md-6 text-end">
+            <label for="phoneNumber" class="form-label">מספר טלפון:</label>
+            <input type="text" class="form-control" id="phoneNumber" @bind="UserUpdatedParameter.PhoneNumber" pattern="^\d{3}-\d{7}$" maxlength="11" minlength="11" placeholder="הזן מספר טלפון" required />
+        </div>
+    </div>
+}
+
+<div class="spacer"></div>
+
+<div class="col-12 text-center mt-4">
+    <button class="btn btn-success" type="button" @onclick="SubmitForm">אישור</button>
+</div>
+
+<div class="spaceUnder"></div>
+
+<div class="modal" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">המשתמש התווסף בהצלחה</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                נא ללחוץ על הכפתור כדי לעבור לעמוד הבא.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" @onclick="NavigateToHomePage">אישור</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color: #FFCCCC;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">: אנא תקנו את השגיאות הבאות</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    @if (Errors != null)
+                    {
+                        @foreach (var error in Errors)
+                        {
+                            <li>@error</li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int userId { get; set; }
+
+    private List<string> Errors;
+
+    [Parameter]
+    public static CityList GetCities { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        GetCities = await api.SelectAllCities();
+        await InitializeFormData();
+    }
+
+    [Parameter]
+    public static Users UserUpdated { get; set; }
+
+    private Users UserUpdatedParameter;
+
+    private async Task InitializeFormData()
+    {
+        UserUpdatedParameter = await api.SelectUserById(userId);
+    }
+
+    private async Task SubmitForm()
+    {
+        if (IsValid(UserUpdatedParameter))
+        {
+            int x = await api.UpdateAUser(UserUpdatedParameter);
+            if (x != 0)
+            {
+                // ShowSuccessModal();
+            }
+        }
+        else
+        {
+            // ShowErrorsModal();
+        }
+    }
+
+    private async Task ShowSuccessModal()
+    {
+        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.showModal", "#successModal");
+        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.disposeModal", "#successModal");
+    }
+
+    private async Task ShowErrorsModal()
+    {
+        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.showModal", "#errorModal");
+        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.disposeModal", "#errorModal");
+    }
+
+    private async Task NavigateToHomePage()
+    {
+        nav.NavigateTo("HomePageUser", true);
+    }
+
+    private bool IsValid(Users user)
+    {
+        bool isValid = true;
+        Errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(user.FirstName))
+        {
+            isValid = false;
+            Errors.Add("שם פרטי אינו תקין");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.LastName))
+        {
+            isValid = false;
+            Errors.Add("שם משפחה אינו תקין");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.CityCode?.CityName))
+        {
+            isValid = false;
+            Errors.Add("לא נבחרה עיר מגורים");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.UserName))
+        {
+            isValid = false;
+            Errors.Add("שם משתמש אינו תקין");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.UserPassword))
+        {
+            isValid = false;
+            Errors.Add("סיסמה איננה תקינה");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.Email) || !IsValidEmail(user.Email))
+        {
+            isValid = false;
+            Errors.Add("האימייל אינו תקין");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.PhoneNumber) || !Regex.IsMatch(user.PhoneNumber, @"^\d{3}-\d{7}$"))
+        {
+            isValid = false;
+            Errors.Add("מספר הטלפון אינו תקין");
+        }
+
+        return isValid;
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
+

@@ -1,0 +1,285 @@
+﻿@page "/AddNewBook"
+@using Microsoft.AspNetCore.Components.Forms
+@inject FileService fileService
+@layout LayoutManger
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<style>
+    /* Center the form on the screen */
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    /* Style for form container */
+    .form-container {
+        width: 400px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Style for buttons */
+    .button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* Style for image preview */
+    .image-preview {
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+
+
+<div class="container">
+    <div class="form-container">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">
+                @errorMessage
+            </div>
+        }
+        <h3 class="text-center">Add New Book</h3>
+
+        <div class="mb-3">
+            <label for="validationTooltip01" class="form-label">Book Name</label>
+            <input type="text" class="form-control" id="validationTooltip01" placeholder="Enter the book name here" @bind="bookName" required />
+        </div>
+
+        @if (GetGenres != null)
+        {
+            <div class="mb-3">
+                <label for="validationTooltipCity" class="form-label">Genre</label>
+                <select class="form-select" id="validationTooltipCity" @bind="genreNameOfBook" required>
+                    <option value="">Choose a genre...</option>
+                    @foreach (var genre in GetGenres)
+                    {
+                        <option value="@genre.GenreName">@genre.GenreName</option>
+                    }
+                </select>
+            </div>
+        }
+
+        @if (GetWriters != null)
+        {
+            <div class="mb-3">
+                <label for="validationTooltipCity" class="form-label">Writer</label>
+                <select class="form-select" id="validationTooltipCity" @bind="writerFullNameOfBook" required>
+                    <option value="">Choose a writer...</option>
+                    @foreach (var writer in GetWriters)
+                    {
+                        <option value="@writer.FirstName @writer.LastName">@writer.FirstName @writer.LastName</option>
+                    }
+                </select>
+            </div>
+        }
+
+        <div class="mb-3">
+            <label for="dateOfBirth" class="form-label">Date of Publish</label>
+            <input type="date" class="form-control" id="dateOfBirth" @bind="dateOfPublishBook" required />
+        </div>
+
+        <InputFile accept="image/*" OnChange="HandleFileChange" />
+
+        @if (file != null)
+        {
+            <div class="image-preview">
+                <p>File Name: @file.Name</p>
+                <img src="@imageSrc" alt="Uploaded Image" style="max-width: 100%;" />
+            </div>
+        }
+
+        <button class="button" @onclick="Submit">Submit</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+@code {
+    private string bookName;
+    private string genreNameOfBook;
+    private string writerFullNameOfBook;
+    private DateTime dateOfPublishBook;
+    private string nameFileOfImage;
+
+    [Inject]
+    private ApiLibraryService.ApiService ApiService { get; set; }
+
+    [Parameter]
+    public static GenreList GetGenres { get; set; }
+
+    [Parameter]
+    public static WritersList GetWriters { get; set; }
+
+    private IBrowserFile file;
+    private string errorMessage;
+    private string imageSrc;
+
+    private bool isImageSelected = false; // Track whether an image is selected
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        GetGenres = await ApiService.SelectAllGeneres();
+        GetWriters = await ApiService.SelectAllWriters();
+    }
+
+    private async void Submit()
+    {
+        Books book = new Books();
+        book.BookName = bookName;
+        book.GenreCode = await GetGenreItemSelected();
+        book.WriterCode = await GetWriterItemSelected();
+        book.DateOfPublishBook = dateOfPublishBook;
+        book.PictureBook = nameFileOfImage;
+        book.BookPic = "xx";
+
+        if(IsValid(book.GenreCode, book.WriterCode))
+        {
+            if (isImageSelected)
+            {
+                await SaveImage();
+                int x = await ApiService.InsertABook(book);
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+    }
+
+    private bool IsValid(Genre g, Writers w)
+    {
+        bool isValid = true;
+        if (string.IsNullOrWhiteSpace(bookName))
+        {
+            isValid = false;
+        }
+        if(g == null)
+        {
+            isValid = false;
+        }
+        if(w == null)
+        {
+            isValid = false;
+        }
+        if (string.IsNullOrWhiteSpace(dateOfPublishBook.ToString()))
+        {
+            isValid = false;
+        }
+        if (string.IsNullOrWhiteSpace(nameFileOfImage))
+        {
+            isValid = false;
+        }
+        return isValid;
+    }
+
+
+    private async Task<Writers> GetWriterItemSelected()
+    {
+        Writers writerBook = null;
+        foreach (Writers w in GetWriters)
+        {
+            string writerFullName = w.FirstName + " " + w.LastName;
+            if (writerFullName.Equals(writerFullNameOfBook))
+            {
+                writerBook = w;
+                break;
+            }
+        }
+        if (writerBook != null)
+        {
+            return writerBook;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+    private async Task<Genre> GetGenreItemSelected()
+    {
+        Genre genreBook = null;
+        foreach(Genre g in GetGenres)
+        {
+            if (g.GenreName.Equals(genreNameOfBook))
+            {
+                genreBook = g;
+                break;
+            }
+        }
+        if(genreBook != null)
+        {
+            return genreBook;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private async Task SaveImage()
+    {
+        await HandleFileChangeInternal(file);
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+        nameFileOfImage = Path.GetFileName(file.Name);
+        isImageSelected = true; // Set the flag to true when an image is selected
+        StateHasChanged(); // Update the UI to show the selected image
+    }
+
+
+    private async Task HandleFileChangeInternal(IBrowserFile file)
+    {
+
+        // Update the folder path accordingly
+        string folderPath = @"C:\Users\USER\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ViewModel\BooksPictures\";
+
+        // Save the image and get the result
+        var (success, savedFilePath, error) = await fileService.SaveImageAsync(file, folderPath);
+        nameFileOfImage = savedFilePath;
+
+        if (!success)
+        {
+            // Set the error message
+            errorMessage = error;
+        }
+        else
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+                imageSrc = $"data:image/png;base64,{Convert.ToBase64String(fileBytes)}";
+            }
+        }
+    }
+
+    
+}
+
+    
+
+
+}

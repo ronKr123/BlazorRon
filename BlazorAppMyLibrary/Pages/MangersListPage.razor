@@ -1,0 +1,71 @@
+﻿@page "/MangersListPage"
+@inject ApiService api
+@layout SideBarManger
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<style>
+    body{
+        background-color:lightblue;
+    }
+</style>
+
+<h3 class="text-center display-3">רשימת מנהלי המערכת</h3>
+
+@if (mangers != null)
+{
+    <table class="table table-striped table-bordered table-hover" style="direction:rtl;text-align:center;">
+        <thead>
+            <tr>
+                <th>שם פרטי</th>
+                <th>שם משפחה</th>
+                <th>תאריך לידה</th>
+                <th>שם המשתמש</th>
+                <th>סיסמה</th>
+                <th>אפשרויות נוספות</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (MangerLibrary m in mangers)
+            {
+                <tr>
+                    <td>@m.FirstName</td>
+                    <td>@m.LastName</td>
+                    <td>@m.DateOfBirth.ToShortDateString()</td>
+                    <td>@m.MangerUserName</td>
+                    <td>@m.MangerPass</td>
+                    <td>
+                        <button class="btn btn-outline-primary" @onclick="@(async () => await UpdateAManger(m))">עדכון המנהל</button>
+                        <button class="btn btn-outline-danger" @onclick="@(async () => await DeleteAManger(m))">מחיקת המנהל</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private MangerLibraryList mangers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        mangers = await api.SelectAllMangers();
+
+    }
+
+    private async Task UpdateAManger(MangerLibrary manger)
+    {
+        //still not done...
+    }
+
+    private async Task DeleteAManger(MangerLibrary manger)
+    {
+        if (manger != null)
+        {
+            int x = await api.DeleteAManger(manger);
+            mangers = await api.SelectAllMangers();
+        }
+    }
+
+}

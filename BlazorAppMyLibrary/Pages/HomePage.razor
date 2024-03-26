@@ -1,0 +1,161 @@
+﻿@page "/HomePageNew"
+
+@layout NewLayoutUser
+@inject ApiService api
+@inject UserService userService
+
+<style>
+    body{
+        background-color:lightblue;
+    }
+</style>
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0/dist/tailwind.min.css" rel="stylesheet">
+
+<div class="max-w-7xl mx-auto pt-10 pb-36 px-7">
+
+    <div class="max-w-md mx-auto mb-14 text-center">
+        <h1 class="text-4xl font-semibold mb-4 lg:text-5xl"> היי <span class="text-indigo-600">@userService.CurrentUser.FirstName</span></h1>
+    </div>
+
+    <div class="flex flex-col justify-between items-center lg:flex-row lg:items-start">
+
+        <div class="w-full flex-1 mt-8 p-8 order-2 bg-white shadow-xl rounded-3xl sm:w-96 lg:w-full lg:order-1 lg:rounded-r-none">
+            <div class="mb-7 pb-7 flex items-center border-b border-gray-300">
+                <img src="/Images/starPic.jpg" alt="" class="rounded-3xl w-20 h-20">
+                <div class="ml-5">
+                    <span class="block text-2xl font-semibold">ספרים מועדפים</span>
+                    <span></span>
+                </div>
+            </div>
+            <ul class="mb-7 font-medium text-gray-500">
+                <li class="flex text-lg mb-2">
+
+                    <span class="ml-3" style="text-align:center;">יש לך <span class="text-black" style="text-align:center;">@numOfFavoriteBooks ספרים מועדפים</span></span>
+                </li>
+                
+                
+            </ul>
+            <a href="myFavoriteBooksPage" class="flex justify-center items-center bg-indigo-600 rounded-xl py-5 px-4 text-center text-white text-xl" >
+                לצפייה בספרים המועדפים<img src="https://res.cloudinary.com/williamsondesign/arrow-right.svg" class="ml-2">
+            </a>
+        </div>
+
+        <div class="w-full flex-1 p-8 order-1 shadow-xl rounded-3xl bg-gray-900 text-gray-400 sm:w-96 lg:w-full lg:order-2 lg:mt-0">
+            <div class="mb-8 pb-8 flex items-center border-b border-gray-600">
+                <img src="/Images/book icon.jpg" alt="" class="rounded-3xl w-20 h-20">
+                <div class="ml-5">
+                    <span class="block text-3xl font-semibold text-white">ההשאלות שלי</span>
+                    <span></span>
+                </div>
+            </div>
+            <ul class="mb-10 font-medium text-xl">
+                <li class="flex mb-6">
+
+                    <span class="ml-3">יש לך <span class="text-white">@numOfLendings השאלות</span></span>
+                </li>
+                <li class="flex mb-6">
+
+
+                </li>
+                
+            </ul>
+            <a href="userlendings" class="flex justify-center items-center bg-indigo-600 rounded-xl py-6 px-4 text-center text-white text-2xl">
+                לצפייה בהשאלות<img src="https://res.cloudinary.com/williamsondesign/arrow-right.svg" class="ml-2">
+            </a>
+        </div>
+
+        <div class="w-full flex-1 mt-8 p-8 order-3 bg-white shadow-xl rounded-3xl sm:w-96 lg:w-full lg:order-3 lg:rounded-l-none">
+            <div class="mb-7 pb-7 flex items-center border-b border-gray-300">
+                <img src="/Images/music icon.png" alt="" class="rounded-3xl w-20 h-20">
+                <div class="ml-5">
+                    <span class="block text-2xl font-semibold">ספרים דיגיטליים</span>
+                    <span></span>
+                </div>
+            </div>
+            <ul class="mb-7 font-medium text-gray-500">
+                <li class="flex text-lg mb-2">
+
+                    <span class="ml-3">יש לך <span class="text-black">@numOfAviableDigitalBooks ספרים דיגיטליים זמינים</span></span>
+                
+                </li>
+                <li class="flex mb-6">
+
+
+                </li>
+
+               </ul>
+               
+            <a href="DigitalBooksPage" class="flex justify-center items-center bg-indigo-600 rounded-xl py-5 px-4 text-center text-white text-xl" >
+                להאזנה לחצו כאן<img src="https://res.cloudinary.com/williamsondesign/arrow-right.svg" class="ml-2">
+            </a>
+
+        </div>
+    </div>
+</div>
+
+@code{
+    private int numOfLendings;
+    private int numOfFavoriteBooks;
+    private int numOfAviableDigitalBooks;
+
+    [Inject]
+    private UserService GetUserService { get; set; }
+
+    [Inject]
+    private ApiService GetApi { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        numOfLendings = await GetNumOfLendings();
+        numOfFavoriteBooks = GetUserService.CurrentUser.FavoriteBooksList.Count;
+        numOfAviableDigitalBooks = await GetDigitalBooksCount();
+
+    }
+
+    private async Task<int> GetNumOfLendings()
+    {
+        int count = 0;
+        
+        LendingAndReturnsBooksList lendings = await GetApi.SelectAllLendingAndReturnsBooks();
+        foreach(LendingAndReturnsBooks lend in lendings)
+        {
+            if(lend.UserCode.Id == GetUserService.CurrentUser.Id)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private async Task<int> GetDigitalBooksCount()
+    {
+        int count = 0;
+        LendingAndReturnsBooksList lendings = await GetApi.SelectAllLendingAndReturnsBooks();
+        foreach (LendingAndReturnsBooks lend in lendings)
+        {
+            bool isDigitalBook = await IfIsDigitalBook(lend.BookCode.Id);
+            if ((lend.UserCode.Id == GetUserService.CurrentUser.Id) && (lend.DateOfReturn == new DateTime(2001, 1, 1)) && isDigitalBook)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+
+    private async Task<bool> IfIsDigitalBook(int id)
+    {
+        DigitalBooksList digitalBooks = await api.SelectAllDigitalBooks();
+        foreach(DigitalBooks b in digitalBooks)
+        {
+            if(b.Id == id)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+}

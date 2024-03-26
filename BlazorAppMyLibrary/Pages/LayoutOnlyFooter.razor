@@ -1,0 +1,81 @@
+﻿<!-- MainLayout.razor -->
+@inherits LayoutComponentBase
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+
+<style>
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content {
+        flex: 1;
+    }
+
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .social-icon {
+        margin: 0 10px;
+        cursor: pointer;
+    }
+
+        .social-icon i {
+            font-size: 2rem; /* Adjust the size as needed */
+        }
+</style>
+
+
+
+
+
+<div class="content">
+    <!-- Page content -->
+    @Body
+</div>
+
+<footer class="text-center bg-body-tertiary">
+    <!-- Grid container -->
+    <div class="container pt-4">
+        <!-- Section: Social media -->
+        <div class="social-icons">
+            <!-- Android Icon -->
+            <div class="social-icon">
+                <i class="bi bi-android2"></i>
+            </div>
+
+            <!-- Google Play Store -->
+            <div class="social-icon">
+                <i class="bi bi-google-play"></i>
+            </div>
+
+            <!-- Apple Icon Logo -->
+            <div class="social-icon">
+                <i class="bi bi-apple"></i>
+            </div>
+        </div>
+    </div>
+    <!-- Grid container -->
+    <!-- Copyright -->
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
+        © 2024 My_Library_Ron
+    </div>
+    <!-- Copyright -->
+</footer>
+
+
+@code {
+
+}
+

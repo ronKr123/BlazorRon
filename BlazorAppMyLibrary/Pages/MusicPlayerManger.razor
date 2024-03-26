@@ -1,0 +1,308 @@
+﻿@page "/musicPlayerManger/{bookId:int}"
+@inject ApiService api
+@inject IJSRuntime JSRuntime
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Forms
+@layout SideBarManger
+
+<style>
+    body {
+        background-color: lightblue;
+    }
+</style>
+
+<script>
+    window.playAudio = function (audioElementId) {
+        var audio = document.getElementById(audioElementId);
+        audio.play();
+    }
+
+
+    window.pauseAudio = function (audioElementId) {
+        var audio = document.getElementById(audioElementId);
+        audio.pause();
+    }
+
+    window.getCurrentTime = function (audioElementId) {
+        var audio = document.getElementById(audioElementId);
+        return audio.currentTime;
+    }
+
+    window.setCurrentTime = function (audioElementId, newTime) {
+        var audio = document.getElementById(audioElementId);
+        audio.currentTime = newTime;
+    }
+
+    window.addEndedEventListener = function (audioElementId, dotNetReference) {
+        var audio = document.getElementById(audioElementId);
+        if (audio) {
+            audio.addEventListener('ended', function () {
+                dotNetReference.invokeMethodAsync('AudioEnded');
+            });
+        } else {
+            console.error("Audio element not found.");
+        }
+    }
+
+    window.getCurrentTime = function (audioElementId) {
+        console.log("getCurrentTime called with audioElementId:", audioElementId);
+        var audio = document.getElementById(audioElementId);
+        if (audio) {
+            return audio.currentTime;
+        } else {
+            console.error("Audio element not found.");
+            return -1;
+        }
+    }
+
+    window.getTotalTime = function (audioElementId) {
+        console.log("getTotalTime called with audioElementId:", audioElementId);
+        var audio = document.getElementById(audioElementId);
+        if (audio) {
+            return audio.duration;
+        } else {
+            console.error("Audio element not found.");
+            return -1;
+        }
+    }
+
+       
+
+</script>
+
+
+<div class="min-h-screen flex justify-center items-center">
+@if (bookDisplay != null)
+{
+        <div class="bg-white p-8 rounded-lg shadow-md w-80">
+            <img src="@($"data:image/{GetImageType(bookDisplay.BookPic)};base64,{bookDisplay.BookPic}")" alt="idk - Highvyn, Taylor Shin" class="w-64 h-64 mx-auto rounded-lg mb-4 shadow-lg shadow-teal-50">
+            <h2 class="text-xl font-semibold text-center" style="font-size:24px;">@bookDisplay.BookName</h2>
+@* @*             <p class="text-gray-600 text-sm text-center" style="font-size:18px; margin-top:7px;">@bookDisplay.WriterCode.FirstName @bookDisplay.WriterCode.LastName</p>
+ *@            <div class="mt-6 flex justify-center items-center">
+                <button @onclick="ResetAudio" class="p-3 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none">
+                    <svg class="h-6 w-6 text-slate-900" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -5v5h5" />  <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 5v-5h-5" /></svg>      
+                </button>
+                <button @onclick="TogglePlayback" class="p-4 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none mx-4">
+                    @if (IsPlaying)
+                    {
+                        <svg class="h-10 w-10 text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  <rect x="6" y="4" width="4" height="16" />  <rect x="14" y="4" width="4" height="16" /></svg>
+                    }
+                    else
+                    {
+                        <svg class="h-10 w-10 text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  <polygon points="5 3 19 12 5 21 5 3" /></svg>
+                    }
+                </button>
+                <button @onclick="SpeedForward" class="p-3 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none">
+                    <svg class="h-6 w-6 text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  <polygon points="13 19 22 12 13 5 13 19" />  <polygon points="2 19 11 12 2 5 2 19" /></svg>
+                </button>
+            </div>
+
+            
+            <div class="bg-gray-200 h-2 rounded-full mt-4">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: @(Progress * 100)%"></div>
+            </div>
+
+
+            <div class="flex justify-between mt-2 text-sm text-gray-600">
+                <span>@FormatTime(CurrentTime)</span>
+                <span>@FormatTime(TotalTime)</span>
+            </div>
+
+        </div>
+
+    <audio id="audioPlayer" @ref="audioElement" style="display: none" controls @onended="AudioEnded">
+        <source src="/AudioFilesOfDigitalBooks/@bookDisplay.BookAudioFile" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+}
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+@code {
+    [Parameter]
+    public int bookId { get; set; }
+
+    private DigitalBooks bookDisplay;
+    private bool IsPlaying = false;
+    private double Progress;
+    private double CurrentTime;
+    private double TotalTime;
+    private ElementReference audioElement;
+    private string AudioPath = "/AudioFilesOfDigitalBooks/song3.mp3"; // Ensure this path is correct
+
+    protected async override Task OnInitializedAsync()
+    {
+        DigitalBooksList digitalBooks = await api.SelectAllDigitalBooks();
+        bookDisplay = digitalBooks.FirstOrDefault(x => x.Id == bookId);
+        if (bookDisplay != null)
+        {
+            TotalTime = bookDisplay.Duration;
+            if (TotalTime > 0)
+            {
+                Console.WriteLine("TotalTime:", TotalTime); // Check the value here
+            }
+            else
+            {
+                Console.WriteLine("TotalTime is not greater than 0. Value:", TotalTime);
+            }
+        }
+        else
+        {
+            Console.WriteLine("Book display is null.");
+        }
+    }
+
+    private string GetImageType(string base64String)
+    {
+        // Determine image type based on the base64 string
+        if (base64String.StartsWith("/9j/")) // JPG signature
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        {
+            return "png";
+        }
+        else
+        {
+            // Add more image type checks as needed
+            return "png"; // Default to PNG if not recognized
+        }
+    }
+
+
+    // public async Task UpdateProgress()
+    // {
+    //     var currentTime = await JSRuntime.InvokeAsync<double>("getCurrentTime", "audioPlayer");
+    //     var totalTime = await JSRuntime.InvokeAsync<double>("getTotalTime", "audioPlayer");
+
+    //     Console.WriteLine("currentTime:", currentTime);
+    //     Console.WriteLine("totalTime:", totalTime);
+
+    //     if (currentTime >= 0 && totalTime > 0)
+    //     {
+    //         Progress = currentTime / totalTime;
+
+
+    //     }
+    // }
+
+    private string FormatTime(double timeInMinutes)
+    {
+        return "";
+    }
+
+
+    private async Task TogglePlayback()
+    {
+        if (IsPlaying)
+        {
+            await JSRuntime.InvokeVoidAsync("pauseAudio", "audioPlayer");
+            IsPlaying = false;
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("playAudio", "audioPlayer");
+            IsPlaying = true;
+            // Start updating progress when playback starts
+            // This will continuously update the progress bar
+            // while the audio is playing
+            while (IsPlaying)
+            {
+                await UpdateProgress();
+                await Task.Delay(100); // Adjust the delay according to your preference
+            }
+        }
+
+        StateHasChanged();
+    }
+
+
+    public async Task UpdateProgress()
+    {
+        var currentTime = await JSRuntime.InvokeAsync<double>("getCurrentTime", "audioPlayer");
+        var totalTime = await JSRuntime.InvokeAsync<double>("getTotalTime", "audioPlayer");
+
+        if (currentTime >= 0 && totalTime > 0)
+        {
+            CurrentTime = currentTime;
+            TotalTime = totalTime;
+            Progress = currentTime / totalTime;
+        }
+        else
+        {
+            // Handle invalid time values if needed
+        }
+
+        StateHasChanged();
+    }
+
+
+    public void Dispose()
+    {
+        // Clean up
+    }
+
+    private async Task ResetAudio()
+    {
+        if (IsPlaying)
+        {
+            await JSRuntime.InvokeVoidAsync("pauseAudio", "audioPlayer");
+            await JSRuntime.InvokeVoidAsync("setCurrentTime", "audioPlayer", 0);
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("pauseAudio", "audioPlayer");
+            await JSRuntime.InvokeVoidAsync("setCurrentTime", "audioPlayer", 0);
+        }
+
+        // Reset the progress bar to its initial state (clear of blue color)
+        Progress = 0;
+
+        if (IsPlaying == false)
+        {
+            // do nothing
+        }
+        else
+        {
+            IsPlaying = !IsPlaying;
+        }
+    }
+
+
+    private async Task SpeedForward()
+    {
+        if (IsPlaying)
+        {
+            var currentTime = await JSRuntime.InvokeAsync<double>("getCurrentTime", "audioPlayer");
+
+            var newTime = currentTime + 5;
+
+            await JSRuntime.InvokeVoidAsync("setCurrentTime", "audioPlayer", newTime);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("addEndedEventListener", "audioPlayer", DotNetObjectReference.Create(this));
+
+        }
+    }
+
+
+
+
+    [JSInvokable]
+    public void AudioEnded()
+    {
+        IsPlaying = false;
+        Progress = 0; // Reset progress to clear the blue color
+        StateHasChanged();
+    }
+
+}

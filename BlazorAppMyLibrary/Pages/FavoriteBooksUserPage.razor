@@ -1,0 +1,107 @@
+﻿@page "/myFavoriteBooksPage"
+@layout NewLayoutUser
+@inject UserService userService
+@inject NavigationManager nav
+@inject ApiService api
+
+<h3 class="text-center display-4">הספרים המועדפים שלי</h3>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+
+<style>
+    body {
+        background-color: #93D8D6; 
+    }
+
+    .custom-card {
+        margin-left: 10px; 
+        max-width: 200px; 
+    }
+</style>
+
+@if (favoriteBooksList != null && favoriteBooksList.Any())
+{
+    <div class="row">
+        @foreach (Books book in favoriteBooksList)
+        {
+            @if (book != null)
+            {
+                <div class="col-md-4">
+                    <div class="card mb-4 custom-card" >
+                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image">
+                    <hr />
+                    <div class="card-body text-center">
+                        <h6 class="card-title">@book.BookName</h6>
+                    </div>
+                    <button class="btn btn-outline-danger" onclick="@(async () => await RemoveBookFromFavoriteBooksList(book))">הסרה מהמועדפים</button>
+                </div>
+            </div>
+            }
+        }
+    </div>
+}
+else
+{
+    <div class="text-center mt-6" style="font-size:30px;">
+        .אין לכם עדיין ספרים מועדפים. הוסיפו לכם ספרים לרשימה שלכם
+        
+    </div>
+   
+}
+
+
+
+
+
+@code {
+    private BooksList favoriteBooksList{ get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        favoriteBooksList = userService.CurrentUser.FavoriteBooksList;
+
+    }
+
+    private string GetImageType(string base64String)
+    {
+        if (base64String.StartsWith("/9j/")) 
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        {
+            return "png";
+        }
+        else
+        {
+            return "png"; 
+        }
+    }
+
+
+
+    private async Task RemoveBookFromFavoriteBooksList(Books book)
+    {
+        if (userService.CurrentUser.FavoriteBooksList.Contains(book))
+        {
+            userService.CurrentUser.FavoriteBooksList.Remove(book);
+            int x = await api.UpdateAUser(userService.CurrentUser);
+            favoriteBooksList = userService.CurrentUser.FavoriteBooksList;
+            await RefreshPage();
+        }
+        else
+        {
+            // do nothing
+        }
+    }
+
+    private async Task RefreshPage()
+    {
+        var uri = new Uri(nav.Uri);
+        nav.NavigateTo(uri.AbsoluteUri, forceLoad: true);
+    }
+}

@@ -1,0 +1,197 @@
+﻿@page "/LendingPage"
+@layout MainLayout
+@inject NavigationManager nav
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<h3 class="gallery-title">הספרייה שלי</h3>
+<h3 class="gallery-title">ברוכים הבאים</h3>
+
+@if (GetBooks != null && GetBooks.Count > 0)
+{
+    <div class="gallery-container">
+        <button @onclick="MoveLeft" class="arrow left">&#10094;</button>
+        <div class="gallery">
+            @foreach (var book in GetVisibleBooks())
+            {
+                <div class="gallery-item">
+                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" alt="@book.BookName" class="gallery-image"/>
+                    <div class="caption">@book.BookName</div>
+                </div>
+            }
+        </div>
+        <button @onclick="MoveRight" class="arrow right">&#10095;</button>
+    </div>
+}
+
+<h3 class="gallery-title">ספרים דיגיטליים</h3>
+<h3 class="gallery-title">באתר תוכלו להאזין לספרים דיגיטליים מכל מקום ומכל זמן</h3>
+<h3 class="gallery-title">לחצו על הכפתור להאזנה לדוגמה לספר דיגיטלי</h3>
+<h3 class="btn btn-primary gallery-title text-center btn-lg" @onclick=NavigateToAudioBookExample >לחצו עליי להאזנה</h3>
+
+<h3 class="gallery-title">? עוד אין לכם משתמש</h3>
+
+<h3 class="gallery-title">הירשמו כבר עכשיו ותוכלו להתחיל להנות מספרייה מדהימה שתהיה רק שלכם</h3>
+         
+
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .gallery-title {
+        text-align: center;
+        margin-top: 20px;
+        color: #333;
+    }
+
+    .gallery-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 20px 10px;
+        overflow: hidden;
+    }
+
+    .gallery {
+        display: flex;
+        overflow: hidden;
+    }
+
+    .gallery-item {
+        box-sizing: border-box;
+        padding: 0 10px;
+        text-align: center;
+        flex: 0 0 33.33%; /* 3 items in a row */
+    }
+
+    /* img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    } */
+
+
+    .gallery-image {
+        max-width: 100%;
+        height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .caption {
+        margin-top: 10px;
+        font-size: 18px; /* Increased font size */
+        color: #666;
+    }
+
+
+    .arrow {
+        font-size: 24px;
+        background: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+    }
+
+        .arrow:hover {
+            background: #2980b9;
+        }
+
+    .left {
+        margin-right: 10px;
+    }
+
+    .right {
+        margin-left: 10px;
+    }
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+@code{
+
+    private int currentIndex = 0;
+
+    [Parameter]
+    public BooksList GetBooks { get; set; }
+
+    [Inject]
+    private ApiLibraryService.ApiService ApiService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        GetBooks = await ApiService.SelectAllBooks();
+    }
+
+    private void MoveLeft()
+    {
+        if (currentIndex > 0)
+        {
+            currentIndex--;
+        }
+        else
+        {
+            currentIndex = GetBooks.Count - 1; // Wrap to the end
+        }
+    }
+
+    private void MoveRight()
+    {
+        currentIndex++;
+        if (currentIndex >= GetBooks.Count)
+        {
+            currentIndex = 0; // Reset to the first image after reaching the end
+        }
+    }
+
+    private IEnumerable<Books> GetVisibleBooks()
+    {
+        var startIndex = currentIndex;
+        var endIndex = startIndex + 2;
+
+        if (endIndex >= GetBooks.Count)
+        {
+            endIndex = GetBooks.Count - 1;
+            startIndex = Math.Max(0, endIndex - 2);
+        }
+
+        for (var i = startIndex; i <= endIndex; i++)
+        {
+            yield return GetBooks[i];
+        }
+    }
+
+    private string GetImageType(string base64String)
+    {
+        // Determine image type based on the base64 string
+        if (base64String.StartsWith("/9j/")) // JPG signature
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        {
+            return "png";
+        }
+        else
+        {
+            // Add more image type checks as needed
+            return "png"; // Default to PNG if not recognized
+        }
+    }
+
+    private void NavigateToAudioBookExample()
+    {
+        nav.NavigateTo("bookplayer/12", true);
+    }
+
+}

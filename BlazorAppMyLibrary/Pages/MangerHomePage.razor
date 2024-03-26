@@ -1,0 +1,23 @@
+﻿@page "/MangerHomePage"
+
+@layout SideBarManger
+
+@inject MangerService mangerService
+
+
+
+<style>
+    body {
+        background-color: lightblue;
+    }
+</style>
+
+@if (mangerService.CurrentManger != null)
+{
+    <h3 class="display-2 text-center">@mangerService.CurrentManger.FirstName שלום</h3>
+}
+
+
+@code {
+
+}

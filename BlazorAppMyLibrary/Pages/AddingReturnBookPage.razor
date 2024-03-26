@@ -1,0 +1,179 @@
+﻿@page "/AddReturnBook"
+@inject ApiService api
+@layout SideBarManger
+@inject IJSRuntime JSRuntime
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<div class="container">
+    <div class="card mt-5">
+        <h3 class="card-header text-center">הוספת השאלה חדשה</h3>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    @if (UsersLend != null)
+                    {
+                        <h4>: בחירת משתמש</h4>
+                        <select class="form-control" @onchange="OnUserSelected">
+                            <option value="">בחר משתמש</option>
+                            @foreach (Users user in UsersLend)
+                            {
+                                <option value="@user.UserName">@user.UserName</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    @if (GetBooks != null)
+                    {
+                        <h4>: בחירת ספר</h4>
+                        <select class="form-control" @onchange="BookSelected" disabled="@string.IsNullOrEmpty(UserSelected)">
+                            <option value="">בחר ספר</option>
+                            @foreach (Books book in GetBooks)
+                            {
+                                <option value="@book.BookName">@book.BookName</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(bookNameSelected) && bookSelected != null)
+            {
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <img class="card-img-top" src="@($"data:image/{GetImageType(bookSelected.BookPic)};base64,{bookSelected.BookPic}")" alt="Book Image">
+                            <div class="card-body">
+                                <h5 class="card-title">תמונת הספר</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4>: תאריך החזרה</h4>
+                        <input type="date" class="form-control" @bind="ReturnDate" min="@lendingOfUser.DateOfLending.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" @onclick="AddNewReturn">אישור</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<style>
+    body{
+        background-color:lightblue;
+    }
+
+</style>
+
+
+@code {
+    private DateTime ReturnDate;
+    private Users userSelected;
+    private Books bookSelected;
+    private LendingAndReturnsBooksList lendingsBooks;
+    private List<Users> UsersLend;
+    private BooksList GetBooks;
+    private string UserSelected;
+    private string bookNameSelected;
+    private LendingAndReturnsBooks lendingOfUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lendingsBooks = await api.SelectAllLendingAndReturnsBooks();
+        InitUsersLendings();
+        GetBooks = new BooksList();
+    }
+
+    private void InitUsersLendings()
+    {
+        if (lendingsBooks != null)
+        {
+            HashSet<Users> uniqueUsers = new HashSet<Users>();
+            foreach (LendingAndReturnsBooks lending in lendingsBooks)
+            {
+                if (lending.DateOfReturn == new DateTime(2001, 1, 1))
+                {
+                    uniqueUsers.Add(lending.UserCode);
+                }
+            }
+            UsersLend = uniqueUsers.ToList();
+        }
+    }
+
+    private void OnUserSelected(ChangeEventArgs e)
+    {
+        UserSelected = e.Value.ToString();
+        GetBooks.Clear(); // Clear the list when user changes
+        foreach (LendingAndReturnsBooks lend in lendingsBooks)
+        {
+            if (lend.UserCode.UserName.Equals(UserSelected) && lend.DateOfReturn == new DateTime(2001, 1, 1))
+            {
+                GetBooks.Add(lend.BookCode);
+            }
+        }
+        bookNameSelected = null; // Reset selected book
+    }
+
+    private async void BookSelected(ChangeEventArgs e)
+    {
+        bookNameSelected = e.Value.ToString();
+        foreach (LendingAndReturnsBooks lend in lendingsBooks)
+        {
+            if (lend.UserCode.UserName.Equals(UserSelected) && lend.BookCode.BookName.Equals(bookNameSelected) && lend.DateOfReturn == new DateTime(2001, 1, 1))
+            {
+                lendingOfUser = lend;
+                break;
+            }
+        }
+        BooksList books = await api.SelectAllBooks();
+        foreach (Books book in books)
+        {
+            if (book.BookName.Equals(bookNameSelected))
+            {
+                bookSelected = book;
+                break;
+            }
+        }
+    }
+
+    private async Task AddNewReturn()
+    {
+        if (ReturnDate != null)
+        {
+            lendingOfUser.DateOfReturn = ReturnDate;
+            int num = await api.UpdateALendingAndReturnBook(lendingOfUser);
+        }
+    }
+
+    private string GetImageType(string base64String)
+    {
+        if (base64String.StartsWith("/9j/"))
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA"))
+        {
+            return "png";
+        }
+        else
+        {
+            return "png";
+        }
+    }
+}

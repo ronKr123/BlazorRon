@@ -1,0 +1,148 @@
+﻿@page "/HomePageUser"
+@layout NewLayoutUser
+@inject UserService userService
+@inject IJSRuntime JSRuntime
+@inject ApiService api
+
+
+<style>
+    body {
+        background-color: lightblue;
+    }
+
+    .greeting-container {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .greeting {
+        color: black;
+        font-weight:300;
+    }
+
+    .card {
+        height: 100%;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+    .card-title {
+        font-size: 24px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+</style>
+
+
+<div class="greeting-container">
+    <h3 class="display-4 greeting mb-3">היי @userService.CurrentUser.FirstName</h3>
+</div>
+
+
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+    <div class="col">
+        <div class="card mb-4 rounded-3 shadow-sm" style="margin-left:7px;">
+            <div class="card-header py-3">
+                <h4 class="my-0 fw-normal">הספרים המועדפים שלי</h4>
+            </div>
+            <div class="card-body">
+                <h1 class="card-title pricing-card-title mb-4">יש לך @countFavoriteBooks ספרים מועדפים<small class="text-body-secondary fw-light"></small></h1>
+
+                <button type="button" class="w-100 btn btn-lg btn-primary">לחץ כאן לצפייה בספרים המועדפים</button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card mb-4 rounded-3 shadow-sm">
+            <div class="card-header py-3">
+                <h4 class="my-0 fw-normal">ההשאלות שלי</h4>
+            </div>
+            <div class="card-body">
+                <h1 class="card-title pricing-card-title mb-4">יש לך @countLendingsOfUser השאלות<small class="text-body-secondary fw-light"></small></h1>
+                <button type="button" class="w-100 btn btn-lg btn-primary">לחץ כאן לצפייה בהשאלות</button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card mb-4 rounded-3 shadow-sm" style="margin-right:7px;">
+            <div class="card-header py-3">
+                <h4 class="my-0 fw-normal">הספרים הדיגיטליים שלי</h4>
+            </div>
+            <div class="card-body">
+                <h1 class="card-title pricing-card-title mb-4">יש לך @countOfAvailbeDigitalBooks ספרים דיגיטליים זמינים<small class="text-body-secondary fw-light"></small></h1>
+                <button type="button" class="w-100 btn btn-lg btn-primary">לחץ כאן להאזנה לספרים הדיטליים</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private int countLendingsOfUser = 0;
+    private int countFavoriteBooks = 0;
+    private int countOfAvailbeDigitalBooks = 0;
+
+    private List<int> ListOfBooksId;
+
+    protected async override Task OnInitializedAsync()
+    {
+        LendingAndReturnsBooksList lendings = await api.SelectAllLendingAndReturnsBooks();
+        foreach (LendingAndReturnsBooks lend in lendings)
+        {
+            if (lend.UserCode.Id == userService.CurrentUser.Id)
+            {
+                countLendingsOfUser++;
+            }
+        }
+
+        countFavoriteBooks = userService.CurrentUser.FavoriteBooksList.Count;
+
+        ListOfBooksId = new List<int>();
+
+        foreach(LendingAndReturnsBooks lend in lendings)
+        {
+            if(lend.UserCode.Id == userService.CurrentUser.Id && lend.DateOfReturn == new DateTime(2001, 1, 1))
+            {
+                ListOfBooksId.Add(lend.BookCode.Id);
+            }
+        }
+
+        DigitalBooksList digitalBooks = await api.SelectAllDigitalBooks();
+        foreach(DigitalBooks digiBook in digitalBooks)
+        {
+            if (IsInList(digiBook.Id))
+            {
+                countOfAvailbeDigitalBooks++;
+            }
+        }
+    }
+
+
+    private bool IsInList(int number)
+    {
+        foreach (int num in ListOfBooksId)
+        {
+            if(num == number)
+            {
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
+
+
+}

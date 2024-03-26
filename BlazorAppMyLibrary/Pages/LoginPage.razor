@@ -1,0 +1,214 @@
+﻿@page "/LoginPage"
+@layout MainLayout
+@inject ApiService api
+@inject UserService userService
+@inject NavigationManager nav
+@inject IJSRuntime JSRuntime
+@inject MangerService mangerService
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<style>
+
+    body {
+        background-color: lightblue; 
+     
+       
+        background-image: url('/Images/LoginBackgroundImg.png');
+        
+        background-size: cover; 
+        background-position: center;
+    }
+
+    .login-container {
+        max-width: 400px;
+        width: 100%;
+        margin: auto;
+        padding: 30px; /* Increased padding for more space */
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Increased box shadow */
+        text-align: center;
+        background-color: #fff;
+        margin-top: 30px;
+    }
+
+    /* Add more decorative styles */
+    h2 {
+        color: #007bff; /* Bootstrap primary color */
+        margin-bottom: 20px; /* Increased margin */
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px; /* Increased margin */
+        display: block; /* Ensure labels appear on a new line */
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc; /* Add border to input fields */
+        border-radius: 5px; /* Add border-radius to input fields */
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        button:hover {
+            background-color: #0056b3; /* Darker shade of primary color on hover */
+        }
+
+    .rtl-label {
+        text-align: right; /* Change text alignment to left-to-right */
+        margin-bottom: 15px; /* Increased margin */
+    }
+
+    /* Additional styles for the entire page */
+    .page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+    }
+</style>
+
+<div class="page-container">
+    <div class="login-container">
+        <h2>ברוכים הבאים</h2>
+        <form>
+            <div class="text-right">
+                <label class="rtl-label" for="username">: שם משתמש</label>
+                <input type="text" @bind="UserNameStr" data-bs-toggle="tooltip" data-bs-delay="1500" data-bs-placement="right" title="הקלידו כאן את שם המשתמש שלכם" />
+            </div>
+
+            <div class="text-right">
+                <label class="rtl-label" for="password">: סיסמה</label>
+                <input type="password" id="PasswordStr" @bind="PasswordStr" data-bs-toggle="tooltip" data-bs-delay="1500" data-bs-placement="right" title="הקלידו כאן את הסיסמה שלכם" />
+            </div>
+
+            <button type="button" @onclick="LoginMethod">כניסה</button>
+            <!-- Error message display -->
+            @if (!string.IsNullOrEmpty(validationMessage))
+            {
+                <div class="alert alert-danger mt-2" role="alert" style="color: red; margin-top: 10px;">@validationMessage</div>
+            }
+
+        </form>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+
+</script>
+
+
+
+
+
+
+@code {
+    public string UserNameStr { get; set; }
+    public string PasswordStr { get; set; }
+
+
+    private string validationMessage;
+
+
+    public Users UserLogin { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    
+
+    private async Task<bool> IsUserLogin()
+    {
+        UsersList users = await api.SelectAllUsers();
+        bool isAuthenticated = false;
+        foreach (Users u in users)
+        {
+            if (u.UserName.Equals(UserNameStr) && u.UserPassword.Equals(PasswordStr))
+            {
+                UserLogin = u;
+                userService.SetCurrentUser(u);
+                isAuthenticated = true;
+                break;
+            }
+        }
+        if (isAuthenticated)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> IsMangerLogin()
+    {
+        MangerLibraryList mangersList = await api.SelectAllMangers();
+        bool isAuthenticated = false;
+        foreach (MangerLibrary m in mangersList)
+        {
+            if(m.MangerUserName.Equals(UserNameStr) && m.MangerPass.Equals(PasswordStr))
+            {
+                mangerService.SetCurrentManger(m);
+                isAuthenticated = true;
+                break;
+            }
+        }
+        if (isAuthenticated)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    public async Task LoginMethod()
+    {
+        if (await IsUserLogin())
+        {
+            nav.NavigateTo("HomePageUser", true);
+        }
+        else
+        {
+            if(await IsMangerLogin())
+            {
+                
+                nav.NavigateTo("dashBoradPage", true);
+            }
+            else
+            {
+                validationMessage = "שם המשתמש או הסיסמה אינם נכונים";
+            }
+        }
+    }
+
+
+}
+
