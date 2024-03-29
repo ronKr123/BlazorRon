@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Pages\DetailsOnBookPage.razor" />
     <Content Remove="Pages\MangerBooksListPage.razor" />
     <Content Remove="Pages\NavBarForUsers.razor" />
+    <Content Remove="Pages\WriterDetailsPage.razor" />
     <Content Remove="wwwroot\Images\book icon.jpg" />
+    <Content Remove="wwwroot\Images\detailBackg.png" />
     <Content Remove="wwwroot\Images\img.jpg" />
     <Content Remove="wwwroot\Images\img3.jpg" />
     <Content Remove="wwwroot\Images\libraryImg2.jpg" />
@@ -38,9 +41,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\DetailsOnBookPage.razor" />
     <_ContentIncludedByDefault Remove="Pages\MangerBooksListPage.razor" />
     <_ContentIncludedByDefault Remove="Pages\NavBarForUsers.razor" />
     <_ContentIncludedByDefault Remove="Pages\UserLendingsPage.razor" />
+    <_ContentIncludedByDefault Remove="Pages\WriterDetailsPage.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +62,7 @@
 
   <ItemGroup>
     <Resource Include="wwwroot\Images\book icon.jpg" />
+    <Resource Include="wwwroot\Images\detailBackg.png" />
     <Resource Include="wwwroot\Images\img.jpg" />
     <Resource Include="wwwroot\Images\img3.jpg" />
     <Resource Include="wwwroot\Images\libraryImg2.jpg" />
@@ -81,12 +87,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Pages\DetailsOnBookPage.razor" />
     <None Include="Pages\MangerBooksListPage.razor" />
     <None Include="Pages\NavBarForUsers.razor" />
+    <None Include="Pages\WriterDetailsPage.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\NavBarForUsers.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\DetailsOnBookPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\WriterDetailsPage.razor" />
   </ItemGroup>
 
 </Project>

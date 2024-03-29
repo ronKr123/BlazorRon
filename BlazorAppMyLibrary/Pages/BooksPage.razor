@@ -18,9 +18,9 @@
         {
             <div class="col-md-4">
                 <div class="card mb-4 custom-card">
-                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי" @onclick="(() => NavigateToDetails(book.Id))">
+                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי" @onclick="(() => NavigateToDetails(book.BookName))">
                     <hr />
-                    <div class="card-body text-center" @onclick="(() => NavigateToDetails(book.Id))">
+                    <div class="card-body text-center" @onclick="(() => NavigateToDetails(book.BookName))">
                         <h6 class="card-title">@book.BookName</h6>
                     </div>
                     @if (IfAlreadyFavorite(book))
@@ -74,9 +74,13 @@ else
         }
     }
 
-    public void NavigateToDetails(int bookId)
+    public async void NavigateToDetails(string bookName)
     {
-        nav.NavigateTo($"bookdetails/{bookId}", true);
+        BooksList books = await ApiService.SelectAllBooks();
+
+        BookChoosen = books.Find(x => x.BookName.Equals(bookName));
+
+        nav.NavigateTo($"/bookdetails", true);
     }
 
 
@@ -147,6 +151,9 @@ else
         nav.NavigateTo(uri.AbsoluteUri, forceLoad: true);
     }
 
+
+
+    public static Books BookChoosen{ get; set; }
 
 }
 

@@ -1,0 +1,60 @@
+﻿@page "/writerDetailsPage"
+@page "/hi"
+@inject NavigationManager nav
+@inject ApiService api
+
+
+@using ApiLibraryService;
+@using Model;
+
+
+
+
+@if (writer != null)
+{
+    <div class="col">
+        <h2 class="text-center mb-5">"פרטי הסופר\ת : "@writer.FirstName @writer.LastName</h2>
+
+        <div class="row text-center">
+            <div class="col-md-6">
+
+            </div>
+
+            <div class="col-md-6" style="font-size:30px;">
+                <p>שם הסופר\ת: <strong> @writer.FirstName @writer.LastName</strong></p>
+                <p>תאריך לידה: <strong> @writer.DateOfBirth.ToShortDateString()</strong></p>
+                <p>ז'אנר הכתיבה: <strong> @writer.GenreWriting.GenreName</strong></p>
+                <p>
+                    קישור לביוגרפיה: <strong>
+                        <a href="@writer.LinkToBiography" target="_blank">לחצו כאן כדי להגיע לביוגרפיה של הסופר\ת</a>
+                    </strong>
+                </p>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+}
+
+
+
+
+@code {
+
+    private Writers writer;
+
+    private int idWriter;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        // idWriter = BookDetails.WriterIdChoosen;
+        // WritersList writers = await api.SelectAllWriters();
+        // writer = writers.Find(x => x.Id == idWriter);
+
+    }
+
+}

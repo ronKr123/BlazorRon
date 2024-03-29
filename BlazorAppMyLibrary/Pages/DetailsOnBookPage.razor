@@ -1,0 +1,48 @@
+﻿@page "/detailsOnBookPage/{BookId:int}"
+
+@using ApiLibraryService;
+@using Model;
+@inject ApiService api
+
+<h3>פרטי הספר</h3>
+
+@if (book != null)
+{
+    <div class="col">
+        <h2 class="text-center mb-5">@book.BookName</h2>
+
+        <div class="row text-center">
+            <div class="col-md-6">
+                <img src="@($"data:image/png;base64,{book.BookPic}")" alt="book name" />
+            </div>
+
+            <div class="col-md-6">
+                <p>שם הספר: <p> @book.BookName</p></p>
+                <p>שם: הסופר\ת <p> @book.WriterCode.FirstName @book.WriterCode.LastName </p></p>
+                <p>זאנר הספר: <p> @book.GenreCode.GenreName</p></p>
+                <p>תאריך פרסום הספר: <p> @book.DateOfPublishBook.ToShortDateString()</p></p>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    body {
+        background-image: url('Images/detailBackg.png');
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int BookId { get; set; }
+
+    private Books book;
+
+    protected override async Task OnInitializedAsync()
+    {
+        BooksList books = await api.SelectAllBooks();
+        book = books.Find(x => x.Id == BookId);
+    }
+}
