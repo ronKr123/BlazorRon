@@ -1,0 +1,155 @@
+﻿@page "/FilterPageForMangers"
+@layout SideBarManger
+@inject ApiService api
+@inject NavigationManager nav
+@inject Filter filter
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<style>
+
+    body {
+        background-color: #93D8D6;
+    }
+
+    .custom-card {
+        margin-left: 10px;
+        max-width: 200px;
+    }
+
+    .filter-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+
+    .books-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .book-view {
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+</style>
+
+<h3 class="text-center display-4 mt-3">חיפוש ספרים</h3>
+<div class="d-flex justify-content-center">
+    
+    <div class="filter-container">
+        <input @bind="BookNameTxtSerch" placeholder="חפש לפי שם ספר" style="text-align:right;" />
+
+        @if (Genres != null && Writers != null)
+        {
+            <select @bind="GenreBookCode" style="text-align: center;">
+                <option value="0">:בחר ז'אנר</option>
+                @foreach (var genre in Genres)
+                {
+                    <option value="@genre.Id">@genre.GenreName</option>
+                }
+            </select>
+            <select @bind="WriterBookCode" style="text-align: center;">
+                <option value="0">:בחר סופר\ת</option>
+                @foreach (var writer in Writers)
+                {
+                    <option value="@writer.Id">@($"{writer.FirstName} {writer.LastName}")</option>
+                }
+            </select>
+        }
+        <button @onclick="Search" class="btn btn-primary">חפש</button>
+    </div>
+</div>
+
+
+@if (BooksList != null && BooksList.Any())
+{
+    <div class="row">
+        @foreach (Books book in BooksList)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4 custom-card" @onclick="(() => NavigateToDetails(book.Id))">
+                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי">
+                    <hr />
+                    <div class="card-body text-center">
+                        <h6 class="card-title">@book.BookName</h6>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-center display-3">לא נמצאו ספרים המתאימים לנתונים שהוכנסו</p>
+}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+
+
+
+@code {
+    private string BookNameTxtSerch { get; set; }
+    private int GenreBookCode { get; set; }
+    private int WriterBookCode { get; set; }
+    private GenreList Genres { get; set; }
+    private WritersList Writers { get; set; }
+    private BooksList BooksList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Genres = await api.SelectAllGeneres();
+        Writers = await api.SelectAllWriters();
+        BooksList = await api.SelectAllBooks();
+
+    }
+
+    [Inject]
+    private Filter GetFilter { get; set; }
+
+    private async Task Search()
+    {
+        GetFilter.BookNameTxt = BookNameTxtSerch;
+        GetFilter.GenreBookCode = GenreBookCode;
+        GetFilter.WriterBookCode = WriterBookCode;
+        string sqlSentence = GetFilter.BuildFilter();
+        BooksList = await api.SelectAllBooksWithFilter(sqlSentence);
+    }
+
+    private string GetImageType(string base64String)
+    {
+        if (base64String.StartsWith("/9j/"))
+        {
+            return "jpeg";
+        }
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        {
+            return "png";
+        }
+        else
+        {
+            return "png";
+        }
+    }
+
+    public async void NavigateToDetails(int bookId)
+    {
+        BooksList books = await api.SelectAllBooks();
+
+        BookChoosen = books.Find(x => x.Id.Equals(bookId));
+        nav.NavigateTo($"/bookdetailsForManger", true);
+    }
+
+    public static Books BookChoosen { get; set; }
+
+}

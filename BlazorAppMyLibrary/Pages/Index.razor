@@ -2,6 +2,9 @@
 @layout MainLayout
 @inject NavigationManager nav
 
+
+
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
 <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg mt-4 blue-background">
@@ -91,7 +94,7 @@
     }
 
     .blue-background {
-        background-color: rgba(255, 255, 255, 1); /* White background */
+        background-color: rgba(255, 255, 255, 1); 
     }
 
     .transparent-image {
@@ -101,7 +104,7 @@
     .image-container {
         background-color: white;
         padding: 10px;
-        display: inline-block; /* Ensure the div only takes up the space needed by the image */
+        display: inline-block; 
     }
 
 </style>
@@ -112,10 +115,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
+
 @code{
     private void ToRegisterPage()
     {
-        nav.NavigateTo("/RegisterPage", true);
+        nav.NavigateTo("/RegisterNewPage", true);
     }
 
     private void ToLoginPage()

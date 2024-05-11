@@ -10,13 +10,9 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
 <style>
-
     body {
         background-color: lightblue; 
-     
-       
-        background-image: url('/Images/LoginBackgroundImg.png');
-        
+        background-image: url('/Images/LoginBackgroundImg.png');       
         background-size: cover; 
         background-position: center;
     }
@@ -25,25 +21,24 @@
         max-width: 400px;
         width: 100%;
         margin: auto;
-        padding: 30px; /* Increased padding for more space */
+        padding: 30px; 
         border: 1px solid #ccc;
         border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Increased box shadow */
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); 
         text-align: center;
         background-color: #fff;
         margin-top: 30px;
     }
 
-    /* Add more decorative styles */
     h2 {
-        color: #007bff; /* Bootstrap primary color */
-        margin-bottom: 20px; /* Increased margin */
+        color: #007bff; 
+        margin-bottom: 20px; 
     }
 
     label {
         font-weight: bold;
-        margin-bottom: 5px; /* Increased margin */
-        display: block; /* Ensure labels appear on a new line */
+        margin-bottom: 5px; 
+        display: block; 
     }
 
     input {
@@ -51,8 +46,8 @@
         padding: 10px;
         margin-bottom: 15px;
         box-sizing: border-box;
-        border: 1px solid #ccc; /* Add border to input fields */
-        border-radius: 5px; /* Add border-radius to input fields */
+        border: 1px solid #ccc; 
+        border-radius: 5px; 
     }
 
     button {
@@ -66,15 +61,14 @@
     }
 
         button:hover {
-            background-color: #0056b3; /* Darker shade of primary color on hover */
+            background-color: #0056b3; 
         }
 
     .rtl-label {
-        text-align: right; /* Change text alignment to left-to-right */
-        margin-bottom: 15px; /* Increased margin */
+        text-align: right; 
+        margin-bottom: 15px; 
     }
 
-    /* Additional styles for the entire page */
     .page-container {
         display: flex;
         justify-content: center;
@@ -98,7 +92,6 @@
             </div>
 
             <button type="button" @onclick="LoginMethod">כניסה</button>
-            <!-- Error message display -->
             @if (!string.IsNullOrEmpty(validationMessage))
             {
                 <div class="alert alert-danger mt-2" role="alert" style="color: red; margin-top: 10px;">@validationMessage</div>

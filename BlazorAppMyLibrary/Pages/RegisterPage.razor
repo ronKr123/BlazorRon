@@ -372,7 +372,6 @@
             isValid = false;
             Errors.Add("האימייל אינו תקין");
 
-            // Example: AddValidationError("email", "Invalid email address");
         }
 
         if (string.IsNullOrWhiteSpace(phoneNumber) || !Regex.IsMatch(phoneNumber, @"^\d{3}-\d{7}$"))
@@ -380,7 +379,6 @@
             isValid = false;
             Errors.Add("מספר הטלפון אינו תקין");
 
-            // ExampAddValidationError("phoneNumber", "Invalid phone number format (xxx-xxxxxxx)");
         }
 
         return isValid;

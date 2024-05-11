@@ -22,7 +22,7 @@
                 <div>My library</div>
             </a>
 
-            @if (userService.CurrentUser != null)
+            @* @if (userService.CurrentUser != null)
             {
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     
@@ -62,25 +62,20 @@
                 </ul>
             }
             else
-            {
+            { *@
                 <ul class="navbar-nav ms-auto ">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">צרו קשר</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="details">מידע על האתר</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="LoginPage">התחברות</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="RegisterPage">הרשמה</a>
-                    </li>
-
                     
+                    <li class="nav-item">
+                        <b>
+                        <a class="nav-link" href="LoginPage">התחברות</a>
+                    </b>
+                    </li>
+
+                    <li class="nav-item">
+                        <b>
+                        <a class="nav-link" href="RegisterNewPage">הרשמה</a>
+                    </b>
+                    </li>
                         <li class="nav-item dropdown ml-10">
                             <a class="nav-link" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="user-info">היי, אורח</span>
@@ -89,7 +84,7 @@
                         </li>
                     
                 </ul>
-            }
+            
 
 
         </div>

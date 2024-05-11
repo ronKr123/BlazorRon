@@ -79,7 +79,7 @@ else
         BooksList books = await ApiService.SelectAllBooks();
 
         BookChoosen = books.Find(x => x.BookName.Equals(bookName));
-
+        FilterPage.BookChoosen = null;
         nav.NavigateTo($"/bookdetails", true);
     }
 

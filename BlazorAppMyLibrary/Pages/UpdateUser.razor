@@ -1,299 +1,257 @@
-﻿@page "/UpdateUser/{userId:int}"
-@page "/UpdateUserPagee"
+﻿@page "/UpdateUser/{UserId:int}"
+@page "/UpdateUserPage"
 @layout NewLayoutUser
 @inject NavigationManager nav
 @inject UserService userService
 @inject IJSRuntime jsRuntime
 @inject ApiService api
 
-@using System.Diagnostics;
-@using System.ComponentModel.DataAnnotations;
 @using System.Text.RegularExpressions;
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    window.bootstrapjsinterop = {
-        showModal: (modalSelector) => {
-            $(modalSelector).modal('show');
-        },
-
-        disposeModal: (modalSelector) => {
-            $(modalSelector).on('hidden.bs.modal', function (e) {
-                $(this).data('bs.modal', null);
-            });
-        },
-
-        disableBackButton: () => {
-            window.history.pushState(null, document.title, window.location.href);
-            window.addEventListener('popstate', function (event) {
-                window.history.pushState(null, document.title, window.location.href);
-            });
-        }
-    };
-</script>
 
 <style>
     body {
         background-color: lightblue;
     }
 
-    .spacer {
-        margin-bottom: 30px;
-    }
-
-    .spaceUnder {
-        margin-bottom: 130px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    select {
-        text-align: right;
-        width: 100%;
-    }
-
-    label {
-        text-align: right;
-    }
 </style>
 
-<div class="spacer"></div>
 
-@if (UserUpdatedParameter != null)
+<h3 class="text-center display-4 mb-4">עדכון פרטים אישיים</h3>
+
+@if (UserUpdated != null)
 {
-    <div class="row g-3">
-        <div class="col-md-6 text-end">
-            <label for="validationTooltip01" class="form-label">שם משפחה</label>
-            <input type="text" class="form-control" id="validationTooltip01" placeholder="הזן שם משפחה" @bind="UserUpdatedParameter.LastName" disabled />
-        </div>
-        <div class="col-md-6 text-end">
-            <label for="validationTooltip02" class="form-label">שם פרטי:</label>
-            <input type="text" class="form-control" id="validationTooltip02" placeholder="הזן שם פרטי" @bind="UserUpdatedParameter.FirstName" disabled />
-        </div>
-    </div>
-
-    <div class="spacer"></div>
-
-    <div class="row g-3">
-        <div class="col-md-6 text-end">
-            <label for="dateOfBirth" class="form-label">תאריך לידה:</label>
-            <input type="date" class="form-control" id="dateOfBirth" @bind="UserUpdatedParameter.DateOfBirth" required />
-        </div>
-        <div class="col-md-6 text-end">
-            <label for="validationTooltipCity" class="form-label">עיר מגורים:</label>
-            @if (GetCities != null)
-            {
-                <select class="form-select" id="citySelected" @bind="UserUpdatedParameter.CityCode.CityName" required>
-                    <option value="">בחר עיר...</option>
-                    @foreach (var city in GetCities)
-                    {
-                        <option value="@city.CityName">@city.CityName</option>
-                    }
-                </select>
-            }
-            else
-            {
-                <div>
-                    Cities data is not available.
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="lastName" class="form-label" style="display:block; text-align:right;">: שם משפחה</b>
+                        <input type="text" class="form-control" style="text-align:right;" id="lastName" placeholder="הכנס שם משפחה" @bind=lN />
+                    </div>
+                    <div class="col-md-6">
+                        <b for="firstName" class="form-label" style="display:block; text-align:right;">: שם פרטי</b>
+                        <input type="text" class="form-control" style="text-align:right;" id="firstName" placeholder="הכנס שם פרטי" @bind=fN />
+                    </div>
                 </div>
-            }
-            <div class="invalid-tooltip">
-                Please select a valid city.
-            </div>
-        </div>
-    </div>
-
-    <div class="spacer"></div>
-
-    <div class="row g-3">
-        <div class="col-md-6 text-end">
-            <label for="validationTooltipUsername" class="form-label">שם משתמש:</label>
-            <div class="input-group has-validation">
-                <input type="text" class="form-control" id="validationTooltipUsername" aria-describedby="validationTooltipUsernamePrepend" @bind="UserUpdatedParameter.UserName" disabled />
-            </div>
-        </div>
-        <div class="col-md-6 text-end">
-            <label for="validationTooltipPassword" class="form-label">סיסמה:</label>
-            <input type="password" class="form-control" id="validationTooltipPassword" @bind="UserUpdatedParameter.UserPassword" required />
-        </div>
-    </div>
-
-    <div class="spacer"></div>
-
-    <div class="row g-3">
-        <div class="col-md-6 text-end">
-            <label for="validationTooltip04" class="form-label">אימייל:</label>
-            <input type="email" class="form-control" id="validationTooltip04" placeholder="הזן כתובת אימייל" @bind="UserUpdatedParameter.Email" required />
-        </div>
-        <div class="col-md-6 text-end">
-            <label for="phoneNumber" class="form-label">מספר טלפון:</label>
-            <input type="text" class="form-control" id="phoneNumber" @bind="UserUpdatedParameter.PhoneNumber" pattern="^\d{3}-\d{7}$" maxlength="11" minlength="11" placeholder="הזן מספר טלפון" required />
-        </div>
-    </div>
-}
-
-<div class="spacer"></div>
-
-<div class="col-12 text-center mt-4">
-    <button class="btn btn-success" type="button" @onclick="SubmitForm">אישור</button>
-</div>
-
-<div class="spaceUnder"></div>
-
-<div class="modal" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">המשתמש התווסף בהצלחה</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                נא ללחוץ על הכפתור כדי לעבור לעמוד הבא.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" @onclick="NavigateToHomePage">אישור</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" style="background-color: #FFCCCC;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">: אנא תקנו את השגיאות הבאות</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <ul>
-                    @if (Errors != null)
-                    {
-                        @foreach (var error in Errors)
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="passUser" class="form-label" style="display:block; text-align:right;">: סיסמה</b>
+                        <input type="password" class="form-control" id="passUser" placeholder="הכנס סיסמה" @bind=pU  />
+                    </div>
+                    <div class="col-md-6">
+                        <b for="userName" class="form-label" style="display:block; text-align:right;">: שם משתמש</b>
+                        <input type="text" class="form-control" id="userName" placeholder="הכנס שם משתמש" @bind=uN disabled/>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="email" class="form-label" style="display:block; text-align:right;">: אימייל</b>
+                        <input type="email" class="form-control" id="email" placeholder="הכנס אימייל" @bind=emailUser  />
+                    </div>
+                    <div class="col-md-6">
+                        <b for="city" class="form-label" style="display:block; text-align:right;">: עיר מגורים</b>
+                        @if (cities != null)
                         {
-                            <li>@error</li>
+                            <select class="form-select" id="city" @bind=cityNUser>
+                                <option value=""> בחר עיר מן הרשימה</option>
+                                @foreach (var city in cities)
+                                {
+                                    <option value="@city.CityName">@city.CityName</option>
+                                }
+                            </select>
                         }
-                    }
-                </ul>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="phoneNumber" class="form-label" style="display:block; text-align:right;">: מספר טלפון</b>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="הכנס מספר טלפון" @bind=phoneNumberUser />
+                    </div>
+                    <div class="col-md-6">
+                        <b for="dob" class="form-label" style="display:block; text-align:right;">: תאריך לידה</b>
+                        <input type="date" class="form-control" id="dob" @bind=dateBirthUser />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+
+
+    <div class="text-center mt-4 mb-4">
+        <button class="btn btn-lg btn-primary" @onclick=SubmitForm>אישור</button>
+    </div>
+
+    @if (isUpdated)
+    {
+        <div class="text-center m-3" style="text-align:center;">
+            <div class="alert alert-success" style="width:400px; margin-left:540px; text-align:center;" role="alert">
+                <h3>
+                    !המשתמש עודכן בהצלחה
+                </h3>
+            </div>
+        </div>
+    }
+
+    @if (hasSomeError && errorsList.Count != 0)
+    {
+        <div class="alert alert-danger" role="alert" style="width:400px; margin-left:560px; text-align:center;">
+            <h3 class="text-center">: שגיאה בעדכון המשתמש</h3>
+            @foreach (string str in errorsList)
+            {
+                <h3 class="text-center">@str</h3>
+            }
+        </div>
+    }
+}
 
 @code {
 
     [Parameter]
-    public int userId { get; set; }
+    public int UserId{ get; set; }
 
-    private List<string> Errors;
+    private Users UserUpdated;
 
-    [Parameter]
-    public static CityList GetCities { get; set; }
+    private Users InitialUserData;
+
+    private CityList cities;
+
+    private List<string> errorsList;
+
+    private bool isUpdated;
+
+    private bool hasSomeError;
+
+    private string cityName;
 
     protected async override Task OnInitializedAsync()
     {
-        GetCities = await api.SelectAllCities();
-        await InitializeFormData();
-    }
+        UsersList users = await api.SelectAllUsers();
+        UserUpdated = users.Find(x => x.Id == UserId);
+        InitialUserData = UserUpdated;
 
-    [Parameter]
-    public static Users UserUpdated { get; set; }
+        cities = await api.SelectAllCities();
+        isUpdated = false;
 
-    private Users UserUpdatedParameter;
-
-    private async Task InitializeFormData()
-    {
-        UserUpdatedParameter = await api.SelectUserById(userId);
-    }
-
-    private async Task SubmitForm()
-    {
-        if (IsValid(UserUpdatedParameter))
+        if(UserUpdated != null)
         {
-            int x = await api.UpdateAUser(UserUpdatedParameter);
-            if (x != 0)
+            fN = UserUpdated.FirstName;
+            lN = UserUpdated.LastName;
+            uN = UserUpdated.UserName;
+            pU = UserUpdated.UserPassword;
+            emailUser = UserUpdated.Email;
+            phoneNumberUser = UserUpdated.PhoneNumber;
+            cityNUser = UserUpdated.CityCode.CityName;
+            dateBirthUser = UserUpdated.DateOfBirth;
+        }
+    }
+
+    private string fN;
+    private string lN;
+    private string uN;
+    private string pU;
+    private string emailUser;
+    private string phoneNumberUser;
+    private string cityNUser;
+    private DateTime dateBirthUser;
+
+    private async void SubmitForm()
+    {
+        isUpdated = true;
+
+        if (!Validate())
+        {
+            foreach (City cityItem in cities)
             {
-                // ShowSuccessModal();
+                if (cityItem.CityName.Equals(cityNUser))
+                {
+                    UserUpdated.CityCode = cityItem;
+                    break;
+                }
             }
+
+            UserUpdated.FirstName = fN;
+            UserUpdated.LastName = lN;
+            UserUpdated.UserName = uN;
+            UserUpdated.UserPassword = pU;
+            UserUpdated.Email = emailUser;
+            UserUpdated.PhoneNumber = phoneNumberUser;
+            UserUpdated.DateOfBirth = dateBirthUser;
+
+            int x = await api.UpdateAUser(UserUpdated);
+            userService.CurrentUser = UserUpdated;
         }
         else
         {
-            // ShowErrorsModal();
+            UserUpdated = InitialUserData;
         }
     }
 
-    private async Task ShowSuccessModal()
+    private bool Validate()
     {
-        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.showModal", "#successModal");
-        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.disposeModal", "#successModal");
-    }
+        errorsList = new List<string>();
+        bool vali = false;
 
-    private async Task ShowErrorsModal()
-    {
-        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.showModal", "#errorModal");
-        await jsRuntime.InvokeVoidAsync("bootstrapjsinterop.disposeModal", "#errorModal");
-    }
-
-    private async Task NavigateToHomePage()
-    {
-        nav.NavigateTo("HomePageUser", true);
-    }
-
-    private bool IsValid(Users user)
-    {
-        bool isValid = true;
-        Errors = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(user.FirstName))
+        if (string.IsNullOrEmpty(fN))
         {
-            isValid = false;
-            Errors.Add("שם פרטי אינו תקין");
+            errorsList.Add("שם פרטי לא תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        if (string.IsNullOrWhiteSpace(user.LastName))
+        if (string.IsNullOrEmpty(lN))
         {
-            isValid = false;
-            Errors.Add("שם משפחה אינו תקין");
+            errorsList.Add("שם משפחה לא תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        if (string.IsNullOrWhiteSpace(user.CityCode?.CityName))
+        if (string.IsNullOrEmpty(pU))
         {
-            isValid = false;
-            Errors.Add("לא נבחרה עיר מגורים");
+            errorsList.Add("הסיסמה איננה תקינה");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        if (string.IsNullOrWhiteSpace(user.UserName))
+        if (string.IsNullOrEmpty(emailUser) || !IsValidEmail(emailUser))
         {
-            isValid = false;
-            Errors.Add("שם משתמש אינו תקין");
+            errorsList.Add("אימייל אינו תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        if (string.IsNullOrWhiteSpace(user.UserPassword))
+        if (string.IsNullOrWhiteSpace(cityNUser))
         {
-            isValid = false;
-            Errors.Add("סיסמה איננה תקינה");
+            errorsList.Add("לא נבחר עיר מגורים");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        if (string.IsNullOrWhiteSpace(user.Email) || !IsValidEmail(user.Email))
+        if (dateBirthUser == DateTime.Now.Date || dateBirthUser.Year > 2010 || dateBirthUser.Year < 1950)
         {
-            isValid = false;
-            Errors.Add("האימייל אינו תקין");
+            errorsList.Add("תאריך לידה אינו תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        if (string.IsNullOrWhiteSpace(user.PhoneNumber) || !Regex.IsMatch(user.PhoneNumber, @"^\d{3}-\d{7}$"))
+        if (string.IsNullOrEmpty(phoneNumberUser) || !Regex.IsMatch(phoneNumberUser, @"^\d{3}-\d{7}$"))
         {
-            isValid = false;
-            Errors.Add("מספר הטלפון אינו תקין");
+            errorsList.Add("מספר טלפון אינו תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
         }
 
-        return isValid;
+        return vali;
     }
 
     private bool IsValidEmail(string email)
@@ -308,5 +266,7 @@
             return false;
         }
     }
+
+
 }
 

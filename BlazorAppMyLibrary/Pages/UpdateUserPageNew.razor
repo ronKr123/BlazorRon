@@ -1,0 +1,245 @@
+﻿@page "/UpdateUserPageNew"
+@layout NewLayoutUser
+@inject UserService userService
+@inject ApiService api
+@using System.Text.RegularExpressions;
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    body{
+        background-color:lightblue;
+    }
+
+    
+
+</style>
+
+
+<h3 class="text-center display-4 mb-4">עדכון פרטים אישיים</h3>
+
+@if (UserUpdated != null)
+{
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="lastName" class="form-label" style="display:block; text-align:right;">: שם משפחה</b>
+                        <input type="text" class="form-control" style="text-align:right;" id="lastName" placeholder="הכנס שם משפחה" @bind=UserUpdated.LastName required/>
+                    </div>
+                    <div class="col-md-6">
+                        <b for="firstName" class="form-label" style="display:block; text-align:right;">: שם פרטי</b>
+                        <input type="text" class="form-control" style="text-align:right;" id="firstName" placeholder="הכנס שם פרטי" @bind=UserUpdated.FirstName required />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="passUser" class="form-label" style="display:block; text-align:right;">: סיסמה</b>
+                        <input type="password" class="form-control" id="passUser" placeholder="הכנס סיסמה" @bind=UserUpdated.UserPassword required />
+                    </div>
+                    <div class="col-md-6">
+                        <b for="userName" class="form-label" style="display:block; text-align:right;">: שם משתמש</b>
+                        <input type="text" class="form-control" id="userName" placeholder="הכנס שם משתמש" @bind=UserUpdated.UserName required /> 
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="email" class="form-label" style="display:block; text-align:right;">: אימייל</b>
+                        <input type="email" class="form-control" id="email" placeholder="הכנס אימייל" @bind=UserUpdated.Email required/>
+                    </div>
+                    <div class="col-md-6">
+                        <b for="city" class="form-label" style="display:block; text-align:right;">: עיר מגורים</b>
+                        @if (cities != null)
+                        {
+                            <select class="form-select" id="city" @bind=cityName>
+                                <option value=""> בחר עיר מן הרשימה</option>
+                                @foreach (var city in cities)
+                                {
+                                    <option value="@city.CityName">@city.CityName</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <b for="phoneNumber" class="form-label" style="display:block; text-align:right;">: מספר טלפון</b>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="הכנס מספר טלפון" @bind=UserUpdated.PhoneNumber required/>
+                    </div>
+                    <div class="col-md-6">
+                        <b for="dob" class="form-label" style="display:block; text-align:right;">: תאריך לידה</b>
+                        <input type="date" class="form-control" id="dob" @bind=UserUpdated.DateOfBirth/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="text-center mt-4 mb-4">
+        <button class="btn btn-lg btn-primary" @onclick=SubmitForm>אישור</button>
+    </div>
+
+    @if (isUpdated)
+    {
+        <div class="text-center m-3" style="text-align:center;">
+            <div class="alert alert-success" style="width:400px; margin-left:540px; text-align:center;" role="alert">
+               <h3>
+                  !המשתמש עודכן בהצלחה
+               </h3>
+            </div>
+        </div>
+    }
+
+    @if (hasSomeError && errorsList.Count != 0)
+    {
+        <div class="alert alert-danger" role="alert" style="width:400px; margin-left:560px; text-align:center;">
+            <h3 class="text-center">: שגיאה בעדכון המשתמש</h3>
+            @foreach(string str in errorsList)
+            {
+                <h3 class="text-center" >@str</h3>
+            }
+        </div>
+    }
+}
+
+@code {
+    private Users UserUpdated;
+    private Users InitialUserData; 
+
+    private CityList cities;
+
+    private List<string> errorsList;
+
+    private bool isUpdated;
+
+    private bool hasSomeError;
+
+    private string cityName;
+
+    protected async override Task OnInitializedAsync()
+    {
+        UserUpdated = userService.CurrentUser;
+        InitialUserData = userService.CurrentUser; 
+        cities = await api.SelectAllCities();
+        isUpdated = false;
+        cityName = userService.CurrentUser.CityCode.CityName;
+    }
+
+
+
+    private async void SubmitForm()
+    {
+        isUpdated = true;
+
+        if (!Validate())
+        {
+            foreach (City cityItem in cities)
+            {
+                if (cityItem.CityName.Equals(cityName))
+                {
+                    UserUpdated.CityCode = cityItem;
+                }
+            }
+
+            int x = await api.UpdateAUser(UserUpdated);
+        }
+        else
+        {
+            UserUpdated = InitialUserData;
+        }
+    }
+
+    private bool Validate()
+    {
+        errorsList = new List<string>();
+        bool vali = false;
+
+        if (string.IsNullOrEmpty(UserUpdated.FirstName))
+        {
+            errorsList.Add("שם פרטי לא תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        if (string.IsNullOrEmpty(UserUpdated.LastName))
+        {
+            errorsList.Add("שם משפחה לא תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        if (string.IsNullOrEmpty(UserUpdated.UserPassword))
+        {
+            errorsList.Add("הסיסמה איננה תקינה");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        if (string.IsNullOrEmpty(UserUpdated.Email) || !IsValidEmail(UserUpdated.Email))
+        {
+            errorsList.Add("אימייל אינו תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        if (string.IsNullOrWhiteSpace(UserUpdated.CityCode?.CityName))
+        {
+            errorsList.Add("לא נבחר עיר מגורים");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        if (UserUpdated.DateOfBirth == DateTime.Now.Date || UserUpdated.DateOfBirth.Year > 2010 || UserUpdated.DateOfBirth.Year < 1950)
+        {
+            errorsList.Add("תאריך לידה אינו תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        if (string.IsNullOrEmpty(UserUpdated.PhoneNumber) || !Regex.IsMatch(UserUpdated.PhoneNumber, @"^\d{3}-\d{7}$"))
+        {
+            errorsList.Add("מספר טלפון אינו תקין");
+            hasSomeError = true;
+            isUpdated = false;
+            vali = true;
+        }
+
+        return vali;
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    
+
+    // protected async override Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     UserUpdated = userService.CurrentUser;
+    //     cities = await api.SelectAllCities();
+    //     isUpdated = false;
+    //     cityName = userService.CurrentUser.CityCode.CityName;
+    // }
+
+
+}

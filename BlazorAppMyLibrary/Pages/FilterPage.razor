@@ -1,6 +1,7 @@
 ﻿@page "/FilterBooksPage"
 
 @layout NewLayoutUser
+
 @inject ApiService api
 @inject NavigationManager nav
 @inject Filter filter
@@ -38,7 +39,7 @@
 @if (BooksList != null && BooksList.Any())
 {
     <div class="row">
-        @foreach (var book in BooksList)
+        @foreach (Books book in BooksList)
         {
             <div class="col-md-4">
                 <div class="card mb-4 custom-card" @onclick="(() => NavigateToDetails(book.Id))">
@@ -69,9 +70,9 @@ else
     private string BookNameTxtSerch { get; set; }
     private int GenreBookCode { get; set; }
     private int WriterBookCode { get; set; }
-    private GenreList Genres { get; set; } // Replace Genre with your actual model
-    private WritersList Writers { get; set; } // Replace Writer with your actual model
-    private BooksList BooksList { get; set; } // Replace Book with your actual model
+    private GenreList Genres { get; set; } 
+    private WritersList Writers { get; set; } 
+    private BooksList BooksList { get; set; } 
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,10 +110,17 @@ else
         }
     }
 
-    public void NavigateToDetails(int bookId)
+    public async void NavigateToDetails(int bookId)
     {
-        nav.NavigateTo($"bookdetails/{bookId}");
+        BooksList books = await api.SelectAllBooks();
+
+        BookChoosen = books.Find(x => x.Id.Equals(bookId));
+        BooksPage.BookChoosen = null;
+        nav.NavigateTo($"/bookdetails", true);
     }
+
+    public static Books BookChoosen { get; set; }
+
 }
 
 <style>

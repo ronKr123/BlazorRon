@@ -25,7 +25,7 @@
     .filter-section {
         display: flex;
         margin-bottom: 20px;
-        justify-content: center; /* Center items horizontally */
+        justify-content: center; 
      
     }
 
@@ -49,25 +49,25 @@
     .book-image {
         border-radius: 4px;
         max-width: 100%;
-        max-height: 200px; /* Adjust the maximum height of the book image */
+        max-height: 200px; 
         height: auto;
         margin: 0 auto;
-        display: block; /* Ensure the image is treated as a block element */
+        display: block; 
     }
 
     .lending-item:hover {
-        transform: translateY(-5px); /* Move the card up slightly on hover */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect on hover */
+        transform: translateY(-5px); 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
     }
 
     .not-returned {
         font-weight: bold;
-        color: #ff6666; /* Light red color */
+        color: #ff6666; 
     }
 
     .book-image-container {
         display: flex;
-        justify-content: center; /* Center items horizontally */
+        justify-content: center; 
         margin-bottom: 10px;
     }
     .lending-details {
@@ -114,10 +114,10 @@
     <button class="btn btn-primary" @onclick="FilterLendings">סינון</button>
 
     <input type="date" id="endDate" @bind="endDate" style="margin:10px;" />
-    <label for="endDate" style="margin:10px;">: תאריך החזרה</label>
+    <b for="endDate" style="margin:10px;">: תאריך החזרה</b>
 
     <input type="date" id="startDate" @bind="startDate" style="margin:10px;" />
-    <label for="startDate" style="margin:10px;">: תאריך השאלה</label>
+    <b for="startDate" style="margin:10px;">: תאריך השאלה</b>
 
 </div>
 
@@ -149,8 +149,7 @@
 }
 else
 {
-    <div class="text-center display-3">לא הושאלו עדיין ספרים</div>
-    <div class="text-center display-2">על מנת להשאיל ספרים פנה למנהל</div>
+    <div class="text-center display-3">לא נמצאו השאלות</div>
 }
 
 <script>
@@ -210,20 +209,17 @@ else
             isDigitalBook = false;
         }
 
-
-        // Determine image type based on the base64 string
-        if (base64String.StartsWith("/9j/")) // JPG signature
+        if (base64String.StartsWith("/9j/")) 
         {
             return "jpeg";
         }
-        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) 
         {
             return "png";
         }
         else
         {
-            // Add more image type checks as needed
-            return "png"; // Default to PNG if not recognized
+            return "png"; 
         }
     }
 
@@ -254,15 +250,12 @@ else
     {
         if (startDate.HasValue && endDate.HasValue && startDate <= endDate)
         {
-            // Filter lendings within the selected date range
             filteredLendings = new LendingAndReturnsBooksList();
 
             foreach (LendingAndReturnsBooks lend in lendingUser)
             {
-                // Check if the lending date is within the selected range
                 if (lend.DateOfLending >= startDate && lend.DateOfLending <= endDate)
                 {
-                    // If the lending has been returned, check if the return date is within the selected range
                     if (lend.DateOfReturn != DateTime.MinValue && lend.DateOfReturn != new DateTime(2001, 1, 1))
                     {
                         if (lend.DateOfReturn >= startDate && lend.DateOfReturn <= endDate)
@@ -270,7 +263,6 @@ else
                             filteredLendings.Add(lend);
                         }
                     }
-                    // If the lending hasn't been returned yet, include it regardless of the return date
                     else
                     {
                         filteredLendings.Add(lend);
@@ -282,17 +274,15 @@ else
         }
         else
         {
-            // Show error modal if the date range is invalid or not selected
-            // Activate the modal using JavaScript
             ShowErrorModal();
         }
     }
 
-    // Function to execute JavaScript code
     private async Task ShowErrorModal()
     {
         await JSRuntime.InvokeVoidAsync("$('#errorModal').modal('show');");
     }
+
 
 }
 

@@ -3,6 +3,14 @@
 @inject UserService userService
 @inject IJSRuntime JSRuntime
 @inject ApiService api
+@inject NavigationManager nav
+
+
+<script type="text/javascript">
+    function preventBack() { window.history.forward() };
+    setTimeout("preventBack()", 0);
+    window.onunload = function () { null; }
+</script>
 
 
 <style>
@@ -61,7 +69,7 @@
             <div class="card-body">
                 <h1 class="card-title pricing-card-title mb-4">יש לך @countFavoriteBooks ספרים מועדפים<small class="text-body-secondary fw-light"></small></h1>
 
-                <button type="button" class="w-100 btn btn-lg btn-primary">לחץ כאן לצפייה בספרים המועדפים</button>
+                <button type="button" class="w-100 btn btn-lg btn-primary" @onclick=NavToMyFavBooksPage>לחץ כאן לצפייה בספרים המועדפים</button>
             </div>
         </div>
     </div>
@@ -72,7 +80,7 @@
             </div>
             <div class="card-body">
                 <h1 class="card-title pricing-card-title mb-4">יש לך @countLendingsOfUser השאלות<small class="text-body-secondary fw-light"></small></h1>
-                <button type="button" class="w-100 btn btn-lg btn-primary">לחץ כאן לצפייה בהשאלות</button>
+                <button type="button" class="w-100 btn btn-lg btn-primary" @onclick=NavToMyLendingsPage>לחץ כאן לצפייה בהשאלות</button>
             </div>
         </div>
     </div>
@@ -83,7 +91,7 @@
             </div>
             <div class="card-body">
                 <h1 class="card-title pricing-card-title mb-4">יש לך @countOfAvailbeDigitalBooks ספרים דיגיטליים זמינים<small class="text-body-secondary fw-light"></small></h1>
-                <button type="button" class="w-100 btn btn-lg btn-primary">לחץ כאן להאזנה לספרים הדיטליים</button>
+                <button type="button" class="w-100 btn btn-lg btn-primary" @onclick=NavToMyDigitalBooksPage>לחץ כאן להאזנה לספרים הדיטליים</button>
             </div>
         </div>
     </div>
@@ -138,10 +146,24 @@
             if(num == number)
             {
                 return true;
-                break;
             }
         }
         return false;
+    }
+
+    private void NavToMyFavBooksPage()
+    {
+        nav.NavigateTo("/myFavoriteBooksPage", true);
+    }
+
+    private void NavToMyLendingsPage()
+    {
+        nav.NavigateTo("/userlendings", true);
+    }
+
+    private void NavToMyDigitalBooksPage()
+    {
+        nav.NavigateTo("/DigitalBooksPage", true);
     }
 
 

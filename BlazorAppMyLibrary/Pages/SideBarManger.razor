@@ -28,10 +28,10 @@
                 </a>
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
-                    <li class="nav-item">
+                    <li>
                         <a href="dashBoradPage" class="nav-link text-white">
-                            <i class="bi bi-speedometer2"></i>
-                              מצב כללי  
+                            <i class="bi bi-speedometer2"></i> 
+                            מצב כללי
                         </a>
                     </li>
                     <li>
@@ -53,6 +53,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="FilterPageForMangers" class="nav-link text-white">
+                            <i class="bi bi-search"></i>                            חיפוש ספר
+                        </a>
+                    </li>
+                    <li>
                         <a href="UsersDetailsMangerPage" class="nav-link text-white">
                             <i class="bi bi-people"></i>
                             משתמשים
@@ -65,7 +70,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="AddReturnBook" class="nav-link text-white">
+                        <a href="AnotherCategories" class="nav-link text-white">
                             <i class="bi bi-brush"></i>
                             קטגוריות נוספות
                         </a>
@@ -81,16 +86,22 @@
                 @if (mangerService.CurrentManger != null)
                 {
                     <!-- Avatar and user info dropdown -->
-                    <div class="dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="">
+                        <h5>
                             <!-- Adjust the size of the avatar image -->
                             <img src="AvatarsFolder/penguinAvatar (1).jpg" alt="Avatar" class="avatar-img rounded-circle border border-dark" style="width: 60px; height: 60px;">
                             <span class="user-info">היי, @mangerService.CurrentManger.FirstName המנהל </span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                        </h5>
+                        @* <ul class="dropdown-menu" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" @onclick="UpdateUser">עדכון פרטי מנהל</a></li>
                             <li><a class="dropdown-item" @onclick="Logout">התנתקות</a></li>
-                        </ul>
+                        </ul> *@
+                        <div class="text-center">
+                            <button class="btn btn-primary" @onclick="UpdateUser">עדכון פרטי מנהל</button>
+                        <br/>
+                        <br />
+                            <button class="btn btn-danger" @onclick="Logout">התנתקות</button>
+                        </div>
                     </div>
 
                     
@@ -124,6 +135,9 @@
     {
         if (mangerService.CurrentManger != null)
         {
+            nav.NavigateTo("/UpdateMangerDetailsPage", true);
         }
     }
+
+
 }
