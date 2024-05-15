@@ -29,7 +29,7 @@
             {
                 <div class="col-md-4">
                     <div class="card mb-4 custom-card" >
-                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image">
+                    <img src="@($"data:image/png;base64,{book.BookPic}")" class="card-img-top" alt="Book Image">
                     <hr />
                     <div class="card-body text-center">
                         <h6 class="card-title">@book.BookName</h6>
@@ -65,23 +65,6 @@ else
         favoriteBooksList = userService.CurrentUser.FavoriteBooksList;
 
     }
-
-    private string GetImageType(string base64String)
-    {
-        if (base64String.StartsWith("/9j/")) 
-        {
-            return "jpeg";
-        }
-        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
-        {
-            return "png";
-        }
-        else
-        {
-            return "png"; 
-        }
-    }
-
 
 
     private async Task RemoveBookFromFavoriteBooksList(Books book)

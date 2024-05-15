@@ -153,8 +153,12 @@
             int num = await api.InsertAUser(newUser);
             if(num != 0)
             {
-                userService.SetCurrentUser(newUser);
-                nav.NavigateTo("IntroducingPage", true);
+                Users users = await api.SelectUserByUserName(userNameUser);
+                userService.SetCurrentUser(users);
+                if (users.Id != 0)
+                {
+                    nav.NavigateTo("IntroducingPage", true);
+                }
             }
         }
         else
@@ -162,6 +166,16 @@
             isNotValid = true;
         }
     }
+
+    private void SetTheIdUser()
+    {
+        Users user = usersList.Find(x=> x.UserName.Equals(userService.CurrentUser.UserName) && x.UserPassword.Equals(userService.CurrentUser.UserPassword));
+        if (user != null)
+        {
+            userService.CurrentUser.Id = user.Id;
+        }
+    }
+
 
 
     private bool Validate()

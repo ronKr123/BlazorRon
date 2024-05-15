@@ -18,7 +18,7 @@
         {
             <div class="col-md-4">
                 <div class="card mb-4 custom-card">
-                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי" @onclick="(() => NavigateToDetails(book.BookName))">
+                    <img src="@($"data:image/png;base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי" @onclick="(() => NavigateToDetails(book.BookName))">
                     <hr />
                     <div class="card-body text-center" @onclick="(() => NavigateToDetails(book.BookName))">
                         <h6 class="card-title">@book.BookName</h6>
@@ -58,21 +58,6 @@ else
         GetBooks = await ApiService.SelectAllBooks();
     }
 
-    private string GetImageType(string base64String)
-    {
-        if (base64String.StartsWith("/9j/")) 
-        {
-            return "jpeg";
-        }
-        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
-        {
-            return "png";
-        }
-        else
-        {
-            return "png"; 
-        }
-    }
 
     public async void NavigateToDetails(string bookName)
     {

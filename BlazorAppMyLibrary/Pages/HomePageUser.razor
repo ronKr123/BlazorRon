@@ -110,9 +110,12 @@
         LendingAndReturnsBooksList lendings = await api.SelectAllLendingAndReturnsBooks();
         foreach (LendingAndReturnsBooks lend in lendings)
         {
-            if (lend.UserCode.Id == userService.CurrentUser.Id)
+            if (lend.UserCode != null)
             {
-                countLendingsOfUser++;
+                if (lend.UserCode.Id == userService.CurrentUser.Id)
+                {
+                    countLendingsOfUser++;
+                }
             }
         }
 
@@ -122,9 +125,12 @@
 
         foreach(LendingAndReturnsBooks lend in lendings)
         {
-            if(lend.UserCode.Id == userService.CurrentUser.Id && lend.DateOfReturn == new DateTime(2001, 1, 1))
+            if (lend.UserCode != null)
             {
-                ListOfBooksId.Add(lend.BookCode.Id);
+                if (lend.UserCode.Id == userService.CurrentUser.Id && lend.DateOfReturn == new DateTime(2001, 1, 1))
+                {
+                    ListOfBooksId.Add(lend.BookCode.Id);
+                }
             }
         }
 

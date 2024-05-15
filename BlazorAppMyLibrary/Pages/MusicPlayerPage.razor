@@ -75,10 +75,10 @@
 @if (bookDisplay != null)
 {
         <div class="bg-white p-8 rounded-lg shadow-md w-80">
-            <img src="@($"data:image/{GetImageType(bookDisplay.BookPic)};base64,{bookDisplay.BookPic}")" alt="idk - Highvyn, Taylor Shin" class="w-64 h-64 mx-auto rounded-lg mb-4 shadow-lg shadow-teal-50">
+            <img src="@($"data:image/png;base64,{bookDisplay.BookPic}")" alt="idk - Highvyn, Taylor Shin" class="w-64 h-64 mx-auto rounded-lg mb-4 shadow-lg shadow-teal-50">
             <h2 class="text-xl font-semibold text-center" style="font-size:24px;">@bookDisplay.BookName</h2>
-@* @*             <p class="text-gray-600 text-sm text-center" style="font-size:18px; margin-top:7px;">@bookDisplay.WriterCode.FirstName @bookDisplay.WriterCode.LastName</p>
- *@            <div class="mt-6 flex justify-center items-center">
+              <p class="text-gray-600 text-sm text-center" style="font-size:18px; margin-top:7px;">@bookDisplay.WriterCode.FirstName @bookDisplay.WriterCode.LastName</p>
+             <div class="mt-6 flex justify-center items-center">
                 <button @onclick="ResetAudio" class="p-3 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none">
                     <svg class="h-6 w-6 text-slate-900" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -5v5h5" />  <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 5v-5h-5" /></svg>      
                 </button>
@@ -111,7 +111,7 @@
         </div>
 
     <audio id="audioPlayer" @ref="audioElement" style="display: none" controls @onended="AudioEnded">
-        <source src="/AudioFilesOfDigitalBooks/@bookDisplay.BookAudioFile" type="audio/mp3">
+        <source src="@($"data:audio/mp3;base64,{bookDisplay.AudioPath}")" type="audio/mp3">
         Your browser does not support the audio element.
     </audio>
 }
@@ -132,7 +132,6 @@
     private double CurrentTime;
     private double TotalTime;
     private ElementReference audioElement;
-    private string AudioPath = "/AudioFilesOfDigitalBooks/song3.mp3"; // Ensure this path is correct
 
     protected async override Task OnInitializedAsync()
     {
@@ -140,6 +139,9 @@
         bookDisplay = digitalBooks.FirstOrDefault(x => x.Id == bookId);
         if (bookDisplay != null)
         {
+
+            bookDisplay.AudioPath = ConvertAudioFileToBase64(bookDisplay.AudioPath);
+
             TotalTime = bookDisplay.Duration;
             if (TotalTime > 0)
             {
@@ -156,40 +158,22 @@
         }
     }
 
-    private string GetImageType(string base64String)
+    private string ConvertAudioFileToBase64(string filePath)
     {
-        // Determine image type based on the base64 string
-        if (base64String.StartsWith("/9j/")) // JPG signature
+        try
         {
-            return "jpeg";
+            byte[] audioBytes = File.ReadAllBytes(filePath);
+
+            string base64String = Convert.ToBase64String(audioBytes);
+
+            return base64String;
         }
-        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) // PNG signature
+        catch(Exception ex)
         {
-            return "png";
-        }
-        else
-        {
-            // Add more image type checks as needed
-            return "png"; // Default to PNG if not recognized
+            Console.WriteLine($"Error converting audio file to base64: {ex.Message}");
+            return null;
         }
     }
-
-
-    // public async Task UpdateProgress()
-    // {
-    //     var currentTime = await JSRuntime.InvokeAsync<double>("getCurrentTime", "audioPlayer");
-    //     var totalTime = await JSRuntime.InvokeAsync<double>("getTotalTime", "audioPlayer");
-
-    //     Console.WriteLine("currentTime:", currentTime);
-    //     Console.WriteLine("totalTime:", totalTime);
-
-    //     if (currentTime >= 0 && totalTime > 0)
-    //     {
-    //         Progress = currentTime / totalTime;
-
-
-    //     }
-    // }
 
     private string FormatTime(double timeInMinutes)
     {
@@ -208,13 +192,11 @@
         {
             await JSRuntime.InvokeVoidAsync("playAudio", "audioPlayer");
             IsPlaying = true;
-            // Start updating progress when playback starts
-            // This will continuously update the progress bar
-            // while the audio is playing
+            
             while (IsPlaying)
             {
                 await UpdateProgress();
-                await Task.Delay(100); // Adjust the delay according to your preference
+                await Task.Delay(100); 
             }
         }
 

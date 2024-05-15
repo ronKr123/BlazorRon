@@ -180,9 +180,12 @@ else
         lendings = await api.SelectAllLendingAndReturnsBooks();
         foreach(LendingAndReturnsBooks lend in lendings)
         {
-            if(lend.UserCode.Id == userService.CurrentUser.Id)
+            if (lend.UserCode != null)
             {
-                lendingUser.Add(lend);
+                if (lend.UserCode.Id == userService.CurrentUser.Id)
+                {
+                    lendingUser.Add(lend);
+                }
             }
         }
         GetLendingUser = lendingUser;

@@ -17,7 +17,7 @@
         {
             <div class="col-md-4">
                 <div class="card mb-3 custom-card">
-                    <img src="@($"data:image/{GetImageType(book.BookPic)};base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי">
+                    <img src="@($"data:image/png;base64,{book.BookPic}")" class="card-img-top" alt="Book Image" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="לחצו עליי">
                     <hr />
                     <div class="card-body text-center">
                         <h5 class="card-title">@book.BookName</h5>
@@ -79,22 +79,6 @@ else
     private bool IfBookInList(Books book)
     {
         return MyBooks.Any(digitalBook => digitalBook.Id == book.Id);
-    }
-
-    private string GetImageType(string base64String)
-    {
-        if (base64String.StartsWith("/9j/"))
-        {
-            return "jpeg";
-        }
-        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA"))
-        {
-            return "png";
-        }
-        else
-        {
-            return "png";
-        }
     }
 
     public void NavigateToDetails(int bookId)
