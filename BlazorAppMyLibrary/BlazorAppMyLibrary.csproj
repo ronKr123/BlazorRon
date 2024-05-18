@@ -49,18 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ApiLibraryService">
-      <HintPath>..\..\..\..\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\ApiLibraryService.dll</HintPath>
-    </Reference>
-    <Reference Include="Model">
-      <HintPath>..\..\..\..\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\Model.dll</HintPath>
-    </Reference>
-    <Reference Include="ViewModel">
-      <HintPath>..\..\..\..\Downloads\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\ViewModel.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="wwwroot\Images\book icon.jpg" />
     <Resource Include="wwwroot\Images\detailBackg.png" />
     <Resource Include="wwwroot\Images\img.jpg" />
@@ -103,6 +91,18 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\WriterDetailsPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ApiLibraryService">
+      <HintPath>..\..\..\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\ApiLibraryService.dll</HintPath>
+    </Reference>
+    <Reference Include="Model">
+      <HintPath>..\..\..\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\Model.dll</HintPath>
+    </Reference>
+    <Reference Include="ViewModel">
+      <HintPath>..\..\..\RonLibraryProject-master (1)\RonLibraryProject-master\ApiLibraryService\bin\x64\Debug\net7.0\ViewModel.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

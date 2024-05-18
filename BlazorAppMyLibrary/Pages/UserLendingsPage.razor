@@ -83,55 +83,30 @@
     }
 </style>
 
-<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Error: Please fix the date range and try again.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<ErrorModal />
 
 
 <h3 class="page-title display-4">ההשאלות שלי</h3>
 
 
-
-
-<div class="filter-section" style="margin-right:30px;">
-
-    <button class="btn btn-primary" @onclick="FilterLendings">סינון</button>
-
-    <input type="date" id="endDate" @bind="endDate" style="margin:10px;" />
-    <b for="endDate" style="margin:10px;">: תאריך החזרה</b>
-
-    <input type="date" id="startDate" @bind="startDate" style="margin:10px;" />
-    <b for="startDate" style="margin:10px;">: תאריך השאלה</b>
-
-</div>
-
-@if (lendingUser.Any())
+@if (lendingUser != null)
 {
     <div class="lendings-container">
-        @foreach (var lending in lendingUser)
+        @foreach (LendingAndReturnsBooks lending in lendingUser)
         {
+            @if(lending != null && lending.BookCode != null)
+            {
             <div class="lending-item">
-                <img src="@($"data:image/{GetImageType(lending.BookCode.BookPic, lending.BookCode)};base64,{lending.BookCode.BookPic}")" alt="Book Image" class="book-image" />
+                <img src="@($"data:image/png;base64,{lending.BookCode.BookPic}")" alt="Book Image" class="book-image" />
                 <div class="lending-details">
+                    @{
+                        GetBookType(lending.BookCode); 
+                    }
+
                     @if (isDigitalBook)
                     {
-                        <strong>@lending.BookCode.BookName <span>(ספר דיגיטלי)</span></strong>
+                        <strong>@lending.BookCode.BookName</strong>
+                        <br />
+                        <strong style="color:dodgerblue">ספר דיגיטלי</strong>
                     }
                     else
                     {
@@ -144,6 +119,7 @@
                     </div>
                 </div>
             </div>
+            }
         }
     </div>
 }
@@ -152,31 +128,22 @@ else
     <div class="text-center display-3">לא נמצאו השאלות</div>
 }
 
-<script>
-    function showErrorModal() {
-        $('#errorModal').modal('show');
-    }
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 @code {
-    private DateTime? startDate;
-    private DateTime? endDate;
+
     private LendingAndReturnsBooksList lendings; 
-    private LendingAndReturnsBooksList filteredLendings;
+
     private LendingAndReturnsBooksList lendingUser = new LendingAndReturnsBooksList();
 
     private DigitalBooksList digitalBooks;
 
     private LendingAndReturnsBooksList GetLendingUser{ get; set; }
 
+    private bool isDigitalBook = false;
+
 
     protected async override Task OnInitializedAsync()
     {
-        startDate = DateTime.Now.Date;
-        endDate = DateTime.Now.Date;
-
         lendings = await api.SelectAllLendingAndReturnsBooks();
         foreach(LendingAndReturnsBooks lend in lendings)
         {
@@ -196,14 +163,11 @@ else
 
     private BooksList books;
 
-    private string GetImageType(string base64String, Books bookItem)
+    private void GetBookType(Books bookItem)
     {
-        // foreach(DigitalBooks digi in digitalBooks)
-        // {
-        //     if()
-        // }
+        DigitalBooks digiBook = digitalBooks.Find(x => x.Id == bookItem.Id);
 
-        if(digitalBooks.Contains(bookItem))
+        if (digiBook != null)
         {
             isDigitalBook = true;
         }
@@ -211,81 +175,8 @@ else
         {
             isDigitalBook = false;
         }
-
-        if (base64String.StartsWith("/9j/")) 
-        {
-            return "jpeg";
-        }
-        else if (base64String.StartsWith("iVBORw0KGgoAAAANSUhEUgAABAAAAA")) 
-        {
-            return "png";
-        }
-        else
-        {
-            return "png"; 
-        }
     }
 
-    private DigitalBooksList GetDigitalBooks{ get; set; }
-
-    private async Task<bool> IsDigitalBook(Books book)
-    {
-        return await Task.Run(() =>
-    {
-        return digitalBooks.Any(digitalBook => digitalBook.Id == book.Id);
-    });
-    }
-
-    private async Task<bool> CheckMethod(Books book)
-    {
-        return await IsDigitalBook(book);
-    }
-
-    private bool isDigitalBook = false;
-
-
-    private async Task CheckIsDigitalBook(Books book)
-    {
-        isDigitalBook = await IsDigitalBook(book);
-    }
-
-    private void FilterLendings()
-    {
-        if (startDate.HasValue && endDate.HasValue && startDate <= endDate)
-        {
-            filteredLendings = new LendingAndReturnsBooksList();
-
-            foreach (LendingAndReturnsBooks lend in lendingUser)
-            {
-                if (lend.DateOfLending >= startDate && lend.DateOfLending <= endDate)
-                {
-                    if (lend.DateOfReturn != DateTime.MinValue && lend.DateOfReturn != new DateTime(2001, 1, 1))
-                    {
-                        if (lend.DateOfReturn >= startDate && lend.DateOfReturn <= endDate)
-                        {
-                            filteredLendings.Add(lend);
-                        }
-                    }
-                    else
-                    {
-                        filteredLendings.Add(lend);
-                    }
-                }
-            }
-
-            lendingUser = filteredLendings;
-        }
-        else
-        {
-            ShowErrorModal();
-        }
-    }
-
-    private async Task ShowErrorModal()
-    {
-        await JSRuntime.InvokeVoidAsync("$('#errorModal').modal('show');");
-    }
-
-
+  
 }
 
